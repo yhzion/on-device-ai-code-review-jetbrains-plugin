@@ -1,36 +1,40 @@
 <idea-plugin>
     <id>com.github.yhzion.aicodereviewjetbrainsplugin</id>
-    <name>AI Code Review</name>
-    <vendor>YoungHo</vendor>
+    <name>Review Code Changes with AI</name>
+    <vendor>youngho.jeon</vendor>
 
     <depends>com.intellij.modules.platform</depends>
-    <depends optional="false" config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
+    <depends config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
 
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Tool Window 등록 -->
-        <toolWindow factoryClass="com.github.yhzion.aicodereviewjetbrainsplugin.toolWindow.AICodeReviewToolWindowFactory" id="AICodeReview"/>
+        <toolWindow
+                factoryClass="com.github.yhzion.jetbrains.plugin.reviewcodechanges.toolWindow.AICodeReviewToolWindowFactory"
+                id="AICodeReview"
+                anchor="right"
+        />
 
         <!-- 플러그인 설정 서비스 등록 -->
-        <applicationService serviceImplementation="com.github.yhzion.aicodereviewjetbrainsplugin.CodeReviewSettings"/>
+        <applicationService serviceImplementation="com.github.yhzion.jetbrains.plugin.reviewcodechanges.CodeReviewSettings"/>
 
         <!-- 플러그인 설정 화면 등록 -->
         <applicationConfigurable
-                instance="com.github.yhzion.aicodereviewjetbrainsplugin.settings.CodeReviewSettingsConfigurable"
-                id="com.github.yhzion.aicodereviewjetbrainsplugin.settings.CodeReviewSettingsConfigurable"
-                displayName="AI Code Review Settings"/>
+                instance="com.github.yhzion.jetbrains.plugin.reviewcodechanges.settings.CodeReviewSettingsConfigurable"
+                id="com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable"
+                displayName="Delta Code Settings"/>
     </extensions>
 
     <applicationListeners>
         <!-- 애플리케이션 활성화 시 리스너 등록 -->
-        <listener class="com.github.yhzion.aicodereviewjetbrainsplugin.listeners.ApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+        <listener class="com.github.yhzion.jetbrains.plugin.reviewcodechanges.listeners.ApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
 
     <actions>
         <!-- AI 코드 리뷰 실행 액션 등록 -->
         <action id="AICodeReview.RunReview"
-                class="com.github.yhzion.aicodereviewjetbrainsplugin.CodeReviewAction"
+                class="com.github.yhzion.jetbrains.plugin.reviewcodechanges.CodeReviewAction"
                 text="Run AI Code Review"
                 description="Run AI-powered code review">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
@@ -40,7 +44,7 @@
 
     <projectListeners>
         <!-- 파일 변경 시 실행되는 리스너 등록 -->
-        <listener class="com.github.yhzion.aicodereviewjetbrainsplugin.CodeReviewFileListener"
+        <listener class="com.github.yhzion.jetbrains.plugin.reviewcodechanges.CodeReviewFileListener"
                   topic="com.intellij.openapi.vfs.VirtualFileListener"/>
     </projectListeners>
 </idea-plugin>
