@@ -1,6 +1,6 @@
 package com.github.yhzion.jetbrains.plugin.deltareview.settings
 
-import com.github.yhzion.jetbrains.plugin.deltareview.CodeReviewSettings
+import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
 import com.intellij.openapi.options.Configurable
 import javax.swing.JComponent
 
@@ -15,17 +15,17 @@ class DeltaReviewSettingsConfigurable : Configurable {
     }
 
     override fun isModified(): Boolean {
-        val settings = CodeReviewSettings.instance
+        val settings = DeltaReviewSettings.instance
         return mySettingsComponent!!.isModified(settings)
     }
 
     override fun apply() {
-        val settings = CodeReviewSettings.instance
+        val settings = DeltaReviewSettings.instance
         mySettingsComponent!!.apply(settings)
     }
 
     override fun reset() {
-        val settings = CodeReviewSettings.instance
+        val settings = DeltaReviewSettings.instance
         mySettingsComponent!!.reset(settings)
     }
 

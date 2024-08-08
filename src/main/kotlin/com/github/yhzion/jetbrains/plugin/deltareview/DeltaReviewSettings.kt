@@ -9,8 +9,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 
 @Service
 @State(name = "DeltaReviewSettings", storages = [Storage("DeltaReviewPluginSettings.xml")])
-
-class CodeReviewSettings : PersistentStateComponent<CodeReviewSettings> {
+class DeltaReviewSettings : PersistentStateComponent<DeltaReviewSettings> {
     var ENDPOINT = "http://localhost:11434/api/chat"
     var MAX_TOKENS = 4096
     var FILE_EXTENSIONS = ".json$|.xml$|.ts$|.js$|.html$|.vue$|.sh$|.tsx$|.jsx$|.py$|.css$"
@@ -18,6 +17,7 @@ class CodeReviewSettings : PersistentStateComponent<CodeReviewSettings> {
     var SERVICE_PROVIDER = "ollama"
     var MODEL = "gemma2"
     var ANTHROPIC_VERSION = "2023-06-01"
+    var PREFERRED_LANGUAGE = "ko"
     var PROMPT = """
         <역할>
         당신은 코드 리뷰어입니다. 당신은 증거와 논리에 기반하여 피드백을 제공합니다.
@@ -52,12 +52,12 @@ class CodeReviewSettings : PersistentStateComponent<CodeReviewSettings> {
 
     override fun getState() = this
 
-    override fun loadState(state: CodeReviewSettings) {
+    override fun loadState(state: DeltaReviewSettings) {
         XmlSerializerUtil.copyBean(state, this)
     }
 
     companion object {
-        val instance: CodeReviewSettings
+        val instance: DeltaReviewSettings
             get() = service()
     }
 }

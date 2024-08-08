@@ -56,8 +56,9 @@ dependencies {
 
     // OkHttp와 JSON 라이브러리 의존성 추가
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("org.json:json:20231013")
     implementation("com.vladsch.flexmark:flexmark-all:0.62.2")
+    implementation("org.json:json:20231013")
+    implementation("com.google.code.gson:gson:2.8.8")
 }
 
 // IntelliJ Platform Gradle Plugin 설정
@@ -142,6 +143,18 @@ tasks {
     publishPlugin {
         dependsOn(patchChangelog)
     }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDir("src/main/resources")
+        }
+    }
+}
+
+tasks.withType<ProcessResources> {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 // UI 테스트를 위한 IntelliJ Platform 실행 설정

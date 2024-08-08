@@ -1,12 +1,12 @@
 <idea-plugin>
-    <id>com.github.yhzion.intellij.plugins.deltareview</id>
+    <id>com.github.yhzion.jetbrains.plugin.deltareview</id>
     <name>Delta Review with AI</name>
     <vendor>gplusit@gmail.com</vendor>
 
     <depends>com.intellij.modules.platform</depends>
     <depends config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
 
-    <resource-bundle>messages.DeltaReviewBundle</resource-bundle>
+<!--    <resource-bundle>messages.DeltaReviewBundle</resource-bundle>-->
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
@@ -16,12 +16,12 @@
                 icon="AllIcons.Toolwindows.Documentation"
         />
 
-        <applicationService serviceImplementation="com.github.yhzion.jetbrains.plugin.deltareview.CodeReviewSettings"/>
+        <applicationService serviceImplementation="com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings"/>
 
         <applicationConfigurable
                 instance="com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable"
                 id="com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable"
-                displayName="Review Code Changes Settings"/>
+                displayName="Delta Code Settings"/>
     </extensions>
 
     <applicationListeners>
@@ -41,7 +41,7 @@
 
     <projectListeners>
         <!-- 파일 변경 시 실행되는 리스너 등록 -->
-        <listener class="com.github.yhzion.jetbrains.plugin.deltareview.CodeReviewFileListener"
+        <listener class="com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewFileListener"
                   topic="com.intellij.openapi.vfs.VirtualFileListener"/>
     </projectListeners>
 </idea-plugin>

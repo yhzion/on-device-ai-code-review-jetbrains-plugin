@@ -1,6 +1,7 @@
 package com.github.yhzion.jetbrains.plugin.deltareview.settings
 
-import com.github.yhzion.jetbrains.plugin.deltareview.CodeReviewSettings
+import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
+import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.FormBuilder
@@ -27,7 +28,11 @@ class CodeReviewSettingsComponent {
     private val panel: JPanel
 
     private val serviceProviders = listOf("claude", "chatgpt", "gemini", "groq", "ollama")
-    private val serviceProviderComboBox = JComboBox(serviceProviders.toTypedArray())
+    private val serviceProviderComboBox = ComboBox(serviceProviders.toTypedArray())
+
+    private val languages = loadLanguagesFromFile("language_list.json")
+    private val languageNames = languages.map { it.name }
+    private val preferredLanguageComboBox = ComboBox(languageNames.toTypedArray())
 
     private val presets = mapOf(
         "claude" to Preset(
@@ -58,7 +63,6 @@ class CodeReviewSettingsComponent {
         )
     )
 
-
     init {
         serviceProviderComboBox.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
@@ -68,12 +72,13 @@ class CodeReviewSettingsComponent {
 
         panel = FormBuilder.createFormBuilder()
             .addLabeledComponent("Endpoint", endpointField)
-            .addLabeledComponent("Max Tokens", maxTokensField)
-            .addLabeledComponent("File Extensions", fileExtensionsField)
-            .addLabeledComponent("Service Provider", serviceProviderComboBox)
+            .addLabeledComponent("Max tokens", maxTokensField)
+            .addLabeledComponent("File extensions", fileExtensionsField)
+            .addLabeledComponent("Service provider", serviceProviderComboBox)
             .addLabeledComponent("Model", modelField)
             .addLabeledComponent(apiKeyLabel, apiKeyField)
             .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
+            .addLabeledComponent("Preferred language", preferredLanguageComboBox)
             .addLabeledComponent("Prompt", promptScrollPane)
             .addComponentFillVertically(JPanel(), 0)
             .panel
@@ -101,7 +106,7 @@ class CodeReviewSettingsComponent {
         anthropicVersionField.isVisible = selectedProvider == "claude"
     }
 
-    fun apply(settings: CodeReviewSettings) {
+    fun apply(settings: DeltaReviewSettings) {
         settings.ENDPOINT = endpointField.text
         settings.MAX_TOKENS = maxTokensField.text.toIntOrNull() ?: 4096
         settings.FILE_EXTENSIONS = fileExtensionsField.text
@@ -110,9 +115,10 @@ class CodeReviewSettingsComponent {
         settings.API_KEY = apiKeyField.text
         settings.ANTHROPIC_VERSION = anthropicVersionField.text
         settings.PROMPT = promptField.text
+        settings.PREFERRED_LANGUAGE = preferredLanguageComboBox.selectedItem as String
     }
 
-    fun reset(settings: CodeReviewSettings) {
+    fun reset(settings: DeltaReviewSettings) {
         endpointField.text = settings.ENDPOINT
         maxTokensField.text = settings.MAX_TOKENS.toString()
         fileExtensionsField.text = settings.FILE_EXTENSIONS
@@ -121,10 +127,11 @@ class CodeReviewSettingsComponent {
         apiKeyField.text = settings.API_KEY
         anthropicVersionField.text = settings.ANTHROPIC_VERSION
         promptField.text = settings.PROMPT
+        preferredLanguageComboBox.selectedItem = settings.PREFERRED_LANGUAGE
         updateFieldVisibility()
     }
 
-    fun isModified(settings: CodeReviewSettings): Boolean {
+    fun isModified(settings: DeltaReviewSettings): Boolean {
         return endpointField.text != settings.ENDPOINT ||
                 maxTokensField.text.toIntOrNull() != settings.MAX_TOKENS ||
                 fileExtensionsField.text != settings.FILE_EXTENSIONS ||
@@ -132,7 +139,8 @@ class CodeReviewSettingsComponent {
                 modelField.text != settings.MODEL ||
                 apiKeyField.text != settings.API_KEY ||
                 anthropicVersionField.text != settings.ANTHROPIC_VERSION ||
-                promptField.text != settings.PROMPT
+                promptField.text != settings.PROMPT ||
+                preferredLanguageComboBox.selectedItem != settings.PREFERRED_LANGUAGE
     }
 
     fun getPanel(): JPanel = panel
