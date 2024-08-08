@@ -3,7 +3,7 @@
     <name>Delta Review with AI</name>
     <vendor>JEONYOUNGHO</vendor>
     <description>AI-powered code review plugin for IntelliJ IDEA</description>
-    <change-notes>Initial release</change-notes>
+    <change-notes>Bug fix</change-notes>
 
     <idea-version since-build="231.1" until-build="252.*" />
 
