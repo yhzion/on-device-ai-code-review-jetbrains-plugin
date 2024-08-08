@@ -21,9 +21,9 @@ class CodeReviewService(private val project: Project) {
 
     private val settings = DeltaReviewSettings.instance
     private val client = OkHttpClient.Builder()
-        .connectTimeout(30, TimeUnit.SECONDS)
-        .writeTimeout(30, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(300, TimeUnit.SECONDS)
+        .writeTimeout(300, TimeUnit.SECONDS)
+        .readTimeout(300, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val request = chain.request()
             val response = chain.proceed(request)

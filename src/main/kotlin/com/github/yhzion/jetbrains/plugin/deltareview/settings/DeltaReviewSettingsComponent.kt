@@ -93,6 +93,7 @@ class CodeReviewSettingsComponent {
             responsePathField.text = it.responsePath
             anthropicVersionField.text = it.anthropicVersion ?: ""
         }
+        print('a')
         updateFieldVisibility()
     }
 
