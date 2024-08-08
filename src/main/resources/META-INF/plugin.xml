@@ -1,12 +1,16 @@
 <idea-plugin>
     <id>com.github.yhzion.jetbrains.plugin.deltareview</id>
     <name>Delta Review with AI</name>
-    <vendor>gplusit@gmail.com</vendor>
+    <vendor>JEONYOUNGHO</vendor>
+    <description>AI-powered code review plugin for IntelliJ IDEA</description>
+    <version>1.0</version>
+    <change-notes>Initial release</change-notes>
+
 
     <depends>com.intellij.modules.platform</depends>
     <depends config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
 
-<!--    <resource-bundle>messages.DeltaReviewBundle</resource-bundle>-->
+    <resource-bundle>messages.DeltaReviewBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
@@ -29,7 +33,6 @@
     </applicationListeners>
 
     <actions>
-        <!-- AI 코드 리뷰 실행 액션 등록 -->
         <action id="DeltaReview.RunReview"
                 class="com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewAction"
                 text="Run AI Code Review"

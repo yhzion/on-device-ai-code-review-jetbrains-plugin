@@ -63,3 +63,7 @@ Contributions are welcome! Please fork this repository, create a new branch, and
 
 ## Contact
 For any issues or feature requests, please open an issue on GitHub or contact the repository maintainer.
+
+<!-- Plugin description -->
+This plugin helps automate code reviews using AI in the JetBrains IDE. It supports multiple code review providers and improves developers' workflows by analysing changes to code and providing review results.
+<!-- Plugin description end -->
