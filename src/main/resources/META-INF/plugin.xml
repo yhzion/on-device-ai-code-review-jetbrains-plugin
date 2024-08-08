@@ -5,7 +5,7 @@
     <description>AI-powered code review plugin for IntelliJ IDEA</description>
     <change-notes>Initial release</change-notes>
 
-    <idea-version since-build="232" until-build="242.999" />
+    <idea-version since-build="2023.1" until-build="2024.*" />
 
     <depends>com.intellij.modules.platform</depends>
     <depends config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
