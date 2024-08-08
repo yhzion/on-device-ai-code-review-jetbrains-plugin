@@ -3,9 +3,9 @@
     <name>Delta Review with AI</name>
     <vendor>JEONYOUNGHO</vendor>
     <description>AI-powered code review plugin for IntelliJ IDEA</description>
-    <version>1.0</version>
     <change-notes>Initial release</change-notes>
 
+    <idea-version since-build="232" until-build="241.*" />
 
     <depends>com.intellij.modules.platform</depends>
     <depends config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
