@@ -17,7 +17,7 @@ class DeltaReviewSettings : PersistentStateComponent<DeltaReviewSettings> {
     var SERVICE_PROVIDER = "ollama"
     var MODEL = "gemma2"
     var ANTHROPIC_VERSION = "2023-06-01"
-    var PREFERRED_LANGUAGE = "ko"
+    var PREFERRED_LANGUAGE = "English"
     var PROMPT = """
 <Role>
 You are a code reviewer. You provide feedback based on evidence and logic.
@@ -29,12 +29,13 @@ You are a code reviewer. You provide feedback based on evidence and logic.
 - Your review should be detailed, easily understandable, and specific enough for someone who is not skilled in programming to understand.
 
 <Request>
-1. translates the request into the language of the {PREFERRED_LANGUAGE} code.
+1. translates the request into the {PREFERRED_LANGUAGE}.
 2. Please review the entire contents of the following file, along with any changes to the code based on the translated language.
-3. Answer in the language of {PREFERRED_LANGUAGE} code. 
+3. Please guide to me {PREFERRED_LANGUAGE}.
 
 <Response instructions>
 - Follow the response structure provided.
+- Answer in the {PREFERRED_LANGUAGE}.
 
 <Response structure>
 # Changes made:

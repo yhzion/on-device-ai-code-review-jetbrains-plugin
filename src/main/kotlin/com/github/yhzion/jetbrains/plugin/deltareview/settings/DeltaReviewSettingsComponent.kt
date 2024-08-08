@@ -47,7 +47,7 @@ class CodeReviewSettingsComponent {
             ".choices[0].message.content"
         ),
         "gemini" to Preset(
-            "https://generativelanguage.googleapis.com/v1/models/\${MODEL}:generateContent?key=\${API_KEY}",
+            "https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent?key={API_KEY}",
             "gemini-1.5-flash",
             ".candidates[0].content.parts[0].text"
         ),
@@ -66,6 +66,7 @@ class CodeReviewSettingsComponent {
     init {
         serviceProviderComboBox.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
+                println("Selected provider: ${serviceProviderComboBox.selectedItem}") // 디버깅용 로그 추가
                 updateFieldsFromPreset(null)
             }
         }
@@ -87,16 +88,46 @@ class CodeReviewSettingsComponent {
     }
 
     private fun updateFieldsFromPreset(settings: DeltaReviewSettings?) {
-        val selectedProvider = serviceProviderComboBox.selectedItem as String
-        val preset = presets[selectedProvider]
+        // Check if settings is null to avoid overwriting user input
+        val _settings = settings ?: DeltaReviewSettings.instance
+
+            println("Updating fields from preset") // 디버깅용 로그 추가
+            val selectedProvider = serviceProviderComboBox.selectedItem as String
+            val preset = presets[selectedProvider]
+
+        // selectedProvider 가 ollama 이고 _settings.ENDPOINT 가 값이 존재할때
+            if (selectedProvider == "ollama" && _settings.ENDPOINT.isNotEmpty()) {
+                // modelField text 값이 존재하면
+                if(modelField.text.isNotEmpty()) {
+                    preset?.let {
+                        responsePathField.text = it.responsePath
+                        anthropicVersionField.text = it.anthropicVersion ?: ""
+                    }
+                } else {
+                    preset?.let {
+                        modelField.text = it.model
+                        responsePathField.text = it.responsePath
+                        anthropicVersionField.text = it.anthropicVersion ?: ""
+                    }
+                }
+            } else{
+                preset?.let {
+                    endpointField.text = it.endpoint
+                    modelField.text = it.model
+                    responsePathField.text = it.responsePath
+                    anthropicVersionField.text = it.anthropicVersion ?: ""
+                }
+            }
+
         preset?.let {
             responsePathField.text = it.responsePath
-            anthropicVersionField.text = it.anthropicVersion ?: ""
         }
+
         updateFieldVisibility()
     }
 
     private fun updateFieldVisibility() {
+        println("Selected provider: ${serviceProviderComboBox.selectedItem}") // 디버깅용 로그 추가
         val selectedProvider = serviceProviderComboBox.selectedItem as String
         apiKeyLabel.isVisible = selectedProvider != "ollama"
         apiKeyField.isVisible = selectedProvider != "ollama"
@@ -115,10 +146,14 @@ class CodeReviewSettingsComponent {
         settings.ANTHROPIC_VERSION = anthropicVersionField.text
         settings.PROMPT = promptField.text
         settings.PREFERRED_LANGUAGE = preferredLanguageComboBox.selectedItem as String
+        settings.RESPONSE_PATH = responsePathField.text
         updateFieldsFromPreset(settings)
+        // 테스트
+        println("settings.ENDPOINT: ${settings.ENDPOINT}")
     }
 
     fun reset(settings: DeltaReviewSettings) {
+        println("Resetting settings with endpoint: ${settings.ENDPOINT}") // 디버깅용 로그 추가
         endpointField.text = settings.ENDPOINT
         maxTokensField.text = settings.MAX_TOKENS.toString()
         fileExtensionsField.text = settings.FILE_EXTENSIONS
@@ -128,6 +163,7 @@ class CodeReviewSettingsComponent {
         anthropicVersionField.text = settings.ANTHROPIC_VERSION
         promptField.text = settings.PROMPT
         preferredLanguageComboBox.selectedItem = settings.PREFERRED_LANGUAGE
+        responsePathField.text = settings.RESPONSE_PATH
         updateFieldVisibility()
         updateFieldsFromPreset(settings)
     }
@@ -141,6 +177,7 @@ class CodeReviewSettingsComponent {
                 apiKeyField.text != settings.API_KEY ||
                 anthropicVersionField.text != settings.ANTHROPIC_VERSION ||
                 promptField.text != settings.PROMPT ||
+                responsePathField.text != settings.RESPONSE_PATH ||
                 preferredLanguageComboBox.selectedItem != settings.PREFERRED_LANGUAGE
     }
 

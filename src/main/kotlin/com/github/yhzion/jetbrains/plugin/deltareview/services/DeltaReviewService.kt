@@ -75,16 +75,27 @@ class CodeReviewService(private val project: Project) {
     }
 
     private suspend fun requestReview(fileName: String, fullContent: String, changedContent: String): String = withContext(Dispatchers.IO) {
-        // 언어 코드 삽입
         val dynamicPrompt = settings.PROMPT.replace("{PREFERRED_LANGUAGE}", settings.PREFERRED_LANGUAGE)
+        println("Dynamic prompt: $dynamicPrompt")
 
         val requestBody = when (settings.SERVICE_PROVIDER) {
             "gemini" -> createGeminiRequestBody(dynamicPrompt, fullContent, changedContent)
             else -> createDefaultRequestBody(dynamicPrompt, fullContent, changedContent)
         }
 
+        var endpoint = settings.ENDPOINT
+        // Check if provider is gemini
+        if (settings.SERVICE_PROVIDER == "gemini") {
+            // replace {MODEL} with settings.MODEL
+            endpoint = endpoint.replace("{MODEL}", settings.MODEL)
+            // replace {API_KEY} with settings.API_KEY
+            endpoint = endpoint.replace("{API_KEY}", settings.API_KEY)
+        }
+
+        println(endpoint)
+
         val request = Request.Builder()
-            .url(settings.ENDPOINT)
+            .url(endpoint)
             .post(requestBody)
             .addHeader("Content-Type", "application/json")
             .apply {
@@ -104,7 +115,8 @@ class CodeReviewService(private val project: Project) {
             val responseBody = response.body?.string() ?: throw Exception("Empty response")
             val jsonResponse = JSONObject(responseBody)
 
-            // RESPONSE_PATH를 사용하여 JSON에서 데이터를 추출
+            println("Response body: $jsonResponse")
+            println("Response path: ${settings.RESPONSE_PATH}")
             extractContentFromJson(jsonResponse, settings.RESPONSE_PATH)
         }
     }
