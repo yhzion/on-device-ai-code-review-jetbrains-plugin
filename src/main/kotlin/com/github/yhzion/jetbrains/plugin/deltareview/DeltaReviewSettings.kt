@@ -12,7 +12,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 class DeltaReviewSettings : PersistentStateComponent<DeltaReviewSettings> {
     var ENDPOINT = "http://localhost:11434/api/chat"
     var MAX_TOKENS = 4096
-    var FILE_EXTENSIONS = ".json$|.xml$|.ts$|.js$|.html$|.vue$|.sh$|.tsx$|.jsx$|.py$|.css$"
+    var FILE_EXTENSIONS = ".json$|.xml$|.ts$|.js$|.html$|.vue$|.sh$|.tsx$|.jsx$|.py$|.css$|.kt$"
     var RESPONSE_PATH = ".message.content"
     var SERVICE_PROVIDER = "ollama"
     var MODEL = "gemma2"

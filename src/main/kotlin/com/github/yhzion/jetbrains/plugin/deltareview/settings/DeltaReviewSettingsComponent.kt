@@ -66,7 +66,7 @@ class CodeReviewSettingsComponent {
     init {
         serviceProviderComboBox.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
-                updateFieldsFromPreset()
+                updateFieldsFromPreset(null)
             }
         }
 
@@ -86,12 +86,10 @@ class CodeReviewSettingsComponent {
         updateFieldVisibility()
     }
 
-    private fun updateFieldsFromPreset() {
+    private fun updateFieldsFromPreset(settings: DeltaReviewSettings?) {
         val selectedProvider = serviceProviderComboBox.selectedItem as String
         val preset = presets[selectedProvider]
         preset?.let {
-            endpointField.text = it.endpoint
-            modelField.text = it.model
             responsePathField.text = it.responsePath
             anthropicVersionField.text = it.anthropicVersion ?: ""
         }
@@ -107,6 +105,7 @@ class CodeReviewSettingsComponent {
     }
 
     fun apply(settings: DeltaReviewSettings) {
+        println("Applying settings with endpoint: ${endpointField.text}") // 디버깅용 로그 추가
         settings.ENDPOINT = endpointField.text
         settings.MAX_TOKENS = maxTokensField.text.toIntOrNull() ?: 4096
         settings.FILE_EXTENSIONS = fileExtensionsField.text
@@ -116,6 +115,7 @@ class CodeReviewSettingsComponent {
         settings.ANTHROPIC_VERSION = anthropicVersionField.text
         settings.PROMPT = promptField.text
         settings.PREFERRED_LANGUAGE = preferredLanguageComboBox.selectedItem as String
+        updateFieldsFromPreset(settings)
     }
 
     fun reset(settings: DeltaReviewSettings) {
@@ -129,6 +129,7 @@ class CodeReviewSettingsComponent {
         promptField.text = settings.PROMPT
         preferredLanguageComboBox.selectedItem = settings.PREFERRED_LANGUAGE
         updateFieldVisibility()
+        updateFieldsFromPreset(settings)
     }
 
     fun isModified(settings: DeltaReviewSettings): Boolean {
