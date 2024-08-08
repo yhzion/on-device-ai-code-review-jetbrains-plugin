@@ -75,9 +75,12 @@ class CodeReviewService(private val project: Project) {
     }
 
     private suspend fun requestReview(fileName: String, fullContent: String, changedContent: String): String = withContext(Dispatchers.IO) {
+        // 언어 코드 삽입
+        val dynamicPrompt = settings.PROMPT.replace("{PREFERRED_LANGUAGE}", settings.PREFERRED_LANGUAGE)
+
         val requestBody = when (settings.SERVICE_PROVIDER) {
-            "gemini" -> createGeminiRequestBody(fullContent, changedContent)
-            else -> createDefaultRequestBody(fullContent, changedContent)
+            "gemini" -> createGeminiRequestBody(dynamicPrompt, fullContent, changedContent)
+            else -> createDefaultRequestBody(dynamicPrompt, fullContent, changedContent)
         }
 
         val request = Request.Builder()
@@ -106,11 +109,11 @@ class CodeReviewService(private val project: Project) {
         }
     }
 
-    private fun createGeminiRequestBody(fullContent: String, changedContent: String): RequestBody {
+    private fun createGeminiRequestBody(prompt: String, fullContent: String, changedContent: String): RequestBody {
         val json = JSONObject().apply {
             put("contents", JSONArray().put(JSONObject().apply {
                 put("parts", JSONArray().put(JSONObject().apply {
-                    put("text", "${settings.PROMPT}\n\nFull file content:\n$fullContent\n\nChanged content:\n$changedContent")
+                    put("text", "$prompt\n\nFull file content:\n$fullContent\n\nChanged content:\n$changedContent")
                 }))
             }))
             put("generationConfig", JSONObject().apply {
@@ -120,14 +123,14 @@ class CodeReviewService(private val project: Project) {
         return json.toString().toRequestBody("application/json".toMediaType())
     }
 
-    private fun createDefaultRequestBody(fullContent: String, changedContent: String): RequestBody {
+    private fun createDefaultRequestBody(prompt: String, fullContent: String, changedContent: String): RequestBody {
         val json = JSONObject().apply {
             put("model", settings.MODEL)
             put("stream", false)
             put("max_tokens", settings.MAX_TOKENS)
             put("messages", JSONArray().put(JSONObject().apply {
                 put("role", "user")
-                put("content", "${settings.PROMPT}\n\nFull file content:\n$fullContent\n\nChanged content:\n$changedContent")
+                put("content", "$prompt\n\nFull file content:\n$fullContent\n\nChanged content:\n$changedContent")
             }))
         }
         return json.toString().toRequestBody("application/json".toMediaType())
