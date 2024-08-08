@@ -1,51 +1,65 @@
-# ai-code-review-jetbrains-plugin
 
-![Build](https://github.com/yhzion/ai-code-review-jetbrains-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/MARKETPLACE_ID.svg)](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID)
+# Delta Review with AI Plugin
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Adjust the [pluginGroup](./gradle.properties) and [pluginName](./gradle.properties), as well as the [id](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Adjust the plugin description in `README` (see [Tips][docs:plugin-description])
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the `MARKETPLACE_ID` in the above README badges. You can obtain it once the plugin is published to JetBrains Marketplace.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+## Overview
+The Delta Review with AI Plugin is an IntelliJ IDEA plugin designed to assist in code review processes using various AI models such as Claude, ChatGPT, Gemini, and more. This plugin enables users to review code changes automatically, identify potential risks, and suggest improvements based on AI-generated feedback.
 
-<!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
-
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections. 
-<!-- Plugin description end -->
+## Features
+- **Automatic Code Review**: Automatically review code changes and provide AI-generated feedback.
+- **Customizable AI Settings**: Choose from multiple AI service providers and configure settings such as API endpoint, model, and response paths.
+- **Language Support**: Dynamically choose the preferred language for the AI response.
+- **Detailed Feedback**: Receive detailed feedback on code changes, potential risks, and suggestions for improvement.
 
 ## Installation
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   ```
+2. Open the project in IntelliJ IDEA.
 
-- Using the IDE built-in plugin system:
-  
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "ai-code-review-jetbrains-plugin"</kbd> >
-  <kbd>Install</kbd>
-  
-- Using JetBrains Marketplace:
+3. Build and run the plugin using the Gradle task:
+   ```bash
+   ./gradlew runIde
+   ```
 
-  Go to [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID) and install it by clicking the <kbd>Install to ...</kbd> button in case your IDE is running.
+## Usage
+1. **Configure Settings**: Go to the plugin settings to configure your API key, service provider, model, and other settings.
+2. **Review Changed Files**: The plugin will automatically detect changed files in your project and send them to the AI for review.
+3. **Receive Feedback**: View the feedback directly within the IDE.
 
-  You can also download the [latest release](https://plugins.jetbrains.com/plugin/MARKETPLACE_ID/versions) from JetBrains Marketplace and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+## Configuration
+The plugin allows customization of the following settings:
+- **Endpoint**: API endpoint for the selected service provider.
+- **Max Tokens**: Maximum number of tokens for the AI response.
+- **File Extensions**: Regular expression to filter which files should be sent for review.
+- **Model**: The AI model to use for generating feedback.
+- **API Key**: Your API key for the selected service provider.
+- **Preferred Language**: The language in which you want to receive the feedback.
 
-- Manually:
+## Example Code
+```kotlin
+val settings = DeltaReviewSettings.instance
+val client = OkHttpClient.Builder()
+    .connectTimeout(30, TimeUnit.SECONDS)
+    .writeTimeout(30, TimeUnit.SECONDS)
+    .readTimeout(30, TimeUnit.SECONDS)
+    .addInterceptor { chain ->
+        val request = chain.request()
+        val response = chain.proceed(request)
+        println("HTTP ${request.method} ${request.url}")
+        println("Request headers: ${request.headers}")
+        println("Response code: ${response.code}")
+        println("Response headers: ${response.headers}")
+        response
+    }
+    .build()
+```
 
-  Download the [latest release](https://github.com/yhzion/ai-code-review-jetbrains-plugin/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Contributions
+Contributions are welcome! Please fork this repository, create a new branch, and submit a pull request.
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
-
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
-[docs:plugin-description]: https://plugins.jetbrains.com/docs/intellij/plugin-user-experience.html#plugin-description-and-presentation
+## Contact
+For any issues or feature requests, please open an issue on GitHub or contact the repository maintainer.
