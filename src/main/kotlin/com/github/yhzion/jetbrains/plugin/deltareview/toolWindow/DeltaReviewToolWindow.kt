@@ -18,7 +18,7 @@ import org.intellij.plugins.markdown.ui.preview.MarkdownHtmlPanel
 class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow) {
     private val mainPanel: JPanel = JPanel(BorderLayout())
     private val markdownPanel: MarkdownHtmlPanel = MarkdownJCEFHtmlPanel(project, null)
-    private val runReviewButton: JButton = JButton("Request a review of your code changes")
+    private val runReviewButton: JButton = JButton("Request a review")
     private val scope = CoroutineScope(Dispatchers.Default + Job())
 
     init {
