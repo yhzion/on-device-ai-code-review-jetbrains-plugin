@@ -1,0 +1,5 @@
+src/**/*.kt
+src/**/*.json
+src/**/*.xml
+README.md
+build.gradle.kts
