@@ -7,8 +7,8 @@ import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.FormBuilder
 import javax.swing.*
+import java.awt.ComponentOrientation
 import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
 import java.awt.event.ItemEvent
 
 class DeltaReviewSettingsComponent {
@@ -35,7 +35,6 @@ class DeltaReviewSettingsComponent {
     private val ollamaEndpointLabel = JLabel(DeltaReviewBundle.message("plugin.settings.ollamaEndpoint"))
     private val anthropicVersionLabel = JLabel(DeltaReviewBundle.message("plugin.settings.anthropicVersion"))
 
-    // 패스워드 필드와 보이기/숨기기 버튼 패널들
     private val claudePanel = createPasswordFieldWithToggle(claudeApiKeyField)
     private val geminiPanel = createPasswordFieldWithToggle(geminiApiKeyField)
     private val groqPanel = createPasswordFieldWithToggle(groqApiKeyField)
@@ -115,10 +114,14 @@ class DeltaReviewSettingsComponent {
 
     private fun updateFieldVisibility() {
         val selectedProvider = serviceProviderComboBox.selectedItem as String
+        val preferredLanguage = preferredLanguageComboBox.selectedItem as String
+
+        // UI 컴포넌트의 방향성을 언어에 맞게 설정
+        applyComponentOrientationBasedOnLanguage(preferredLanguage, panel)
+
         ollamaEndpointLabel.isVisible = selectedProvider == "ollama"
         ollamaEndpointField.isVisible = selectedProvider == "ollama"
 
-        // API 키 필드 및 패널 가시성 조정
         claudeApiKeyLabel.isVisible = selectedProvider == "claude"
         claudePanel.isVisible = selectedProvider == "claude"
 
@@ -153,6 +156,15 @@ class DeltaReviewSettingsComponent {
             add(passwordField)
             add(showHideButton)
         }
+    }
+
+    private fun applyComponentOrientationBasedOnLanguage(languageCode: String, component: JComponent) {
+        val isRtl = when (languageCode) {
+            "ar", "he", "fa", "ur" -> true
+            else -> false
+        }
+        component.componentOrientation =
+            if (isRtl) ComponentOrientation.RIGHT_TO_LEFT else ComponentOrientation.LEFT_TO_RIGHT
     }
 
     fun apply(settings: DeltaReviewSettings) {
