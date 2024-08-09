@@ -1,3 +1,4 @@
+import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle
 import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
 import com.github.yhzion.jetbrains.plugin.deltareview.services.DeltaReviewService
 import com.github.yhzion.jetbrains.plugin.deltareview.services.FileReviewResult
@@ -18,16 +19,16 @@ import javax.swing.*
 class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow) {
     private val mainPanel: JPanel = JPanel(BorderLayout())
     private val markdownPanel: MarkdownHtmlPanel = MarkdownJCEFHtmlPanel(project, null)
-    private val runReviewButton: JButton = JButton("Request a review")
-    private val cancelButton: JButton = JButton("Cancel")
+    private val runReviewButton: JButton = JButton(DeltaReviewBundle.message("plugin.review.runReviewButton"))
+    private val cancelButton: JButton = JButton(DeltaReviewBundle.message("plugin.review.cancelButton"))
     private val progressBar: JProgressBar = JProgressBar()
     private val providerLabel: JLabel = JLabel()
     private val modelLabel: JLabel = JLabel()
     private val scope = CoroutineScope(Dispatchers.Default + Job())
 
     init {
-        providerLabel.text = "Service Provider: ${DeltaReviewSettings.instance.SERVICE_PROVIDER}"
-        modelLabel.text = "Model: ${DeltaReviewSettings.instance.MODEL}"
+        providerLabel.text = DeltaReviewBundle.message("plugin.review.serviceProvider") + ": ${DeltaReviewSettings.instance.SERVICE_PROVIDER}"
+        modelLabel.text = DeltaReviewBundle.message("plugin.review.model") + ": ${DeltaReviewSettings.instance.MODEL}"
         providerLabel.font = providerLabel.font.deriveFont(Font.PLAIN, 14f)
         modelLabel.font = modelLabel.font.deriveFont(Font.PLAIN, 14f)
         providerLabel.foreground = JBColor.foreground()  // 글씨 색상을 테마에 맞게 변경
@@ -48,7 +49,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
         // 탭 패널로 정보 패널 구성
         val tabbedPane = JTabbedPane().apply {
-            addTab("Information", infoPanel)
+            addTab(DeltaReviewBundle.message("plugin.review.informationTab"), infoPanel)
         }
 
         progressBar.isIndeterminate = true
@@ -91,7 +92,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
         cancelButton.addActionListener {
             scope.coroutineContext.cancelChildren()
-            appendReviewResult("Review cancelled.\n")
+            appendReviewResult(DeltaReviewBundle.message("plugin.review.cancelled") + "\n")
             runReviewButton.isEnabled = true
             cancelButton.isEnabled = false
             progressBar.isVisible = false
@@ -104,16 +105,16 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
                 val reviewService = DeltaReviewService(project)
                 val results = reviewService.reviewChangedFiles { progress ->
                     withContext(Dispatchers.Main) {
-                        appendReviewResult(progress)
+                        appendReviewResult(DeltaReviewBundle.message("plugin.review.reviewingFile", progress))
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    appendReviewResult("Review Results:\n")
+                    appendReviewResult(DeltaReviewBundle.message("plugin.review.results") + ":\n")
                     appendReviewResult(formatResults(results))
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    appendReviewResult("Error occurred: ${e.message}\n")
+                    appendReviewResult(DeltaReviewBundle.message("plugin.review.errorOccurred", e.message ?: "") + "\n")
                 }
             } finally {
                 withContext(Dispatchers.Main) {
@@ -127,7 +128,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
     private fun formatResults(results: List<FileReviewResult>): String {
         return results.joinToString("\n\n") { result ->
-            "### File: ${result.fileName}\n${result.review}"
+            DeltaReviewBundle.message("plugin.review.file") + ": ${result.fileName}\n${result.review}"
         }
     }
 

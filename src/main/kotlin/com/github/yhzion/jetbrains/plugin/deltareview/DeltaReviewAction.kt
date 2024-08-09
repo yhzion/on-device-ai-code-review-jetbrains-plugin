@@ -14,7 +14,7 @@ class DeltaReviewAction : AnAction() {
         val project = e.project ?: return
         val reviewService = DeltaReviewService(project)
 
-        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Delta review")
+        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(DeltaReviewBundle.message("plugin.review.run"))
 
         runBlocking {
             val results = reviewService.reviewChangedFiles { progress ->

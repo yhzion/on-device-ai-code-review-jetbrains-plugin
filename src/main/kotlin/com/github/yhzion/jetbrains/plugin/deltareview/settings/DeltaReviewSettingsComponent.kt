@@ -1,5 +1,7 @@
 package com.github.yhzion.jetbrains.plugin.deltareview.settings
 
+import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle
+import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle.message
 import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBTextField
@@ -8,7 +10,7 @@ import com.intellij.util.ui.FormBuilder
 import javax.swing.*
 import java.awt.event.ItemEvent
 
-class CodeReviewSettingsComponent {
+class DeltaReviewSettingsComponent {
     private val ollamaEndpointField = JBTextField()
     private val claudeApiKeyField = JBTextField()
     private val geminiApiKeyField = JBTextField()
@@ -25,12 +27,12 @@ class CodeReviewSettingsComponent {
     }
     private val promptScrollPane = JBScrollPane(promptField)
 
-    private val claudeApiKeyLabel = JLabel("Claude API Key")
-    private val geminiApiKeyLabel = JLabel("Gemini API Key")
-    private val groqApiKeyLabel = JLabel("Groq API Key")
-    private val openAiApiKeyLabel = JLabel("OpenAI API Key")
-    private val ollamaEndpointLabel = JLabel("Ollama Endpoint")
-    private val anthropicVersionLabel = JLabel("Anthropic version")
+    private val claudeApiKeyLabel = JLabel(message("plugin.settings.claudeApiKey"))
+    private val geminiApiKeyLabel = JLabel(message("plugin.settings.geminiApiKey"))
+    private val groqApiKeyLabel = JLabel(message("plugin.settings.groqApiKey"))
+    private val openAiApiKeyLabel = JLabel(message("plugin.settings.openAiApiKey"))
+    private val ollamaEndpointLabel = JLabel(message("plugin.settings.ollamaEndpoint"))
+    private val anthropicVersionLabel = JLabel(message("plugin.settings.anthropicVersion"))
 
     private val panel: JPanel
 
@@ -50,19 +52,22 @@ class CodeReviewSettingsComponent {
         }
 
         panel = FormBuilder.createFormBuilder()
-            .addLabeledComponent("Max tokens", maxTokensField)
-            .addLabeledComponent("File extensions", fileExtensionsField)
-            .addLabeledComponent("Service provider", serviceProviderComboBox)
-            .addLabeledComponent("Model", modelField)
-            .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)
-            .addLabeledComponent(claudeApiKeyLabel, claudeApiKeyField)
-            .addLabeledComponent(geminiApiKeyLabel, geminiApiKeyField)
-            .addLabeledComponent(groqApiKeyLabel, groqApiKeyField)
-            .addLabeledComponent(openAiApiKeyLabel, openAiApiKeyField)
-            .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
-            .addLabeledComponent("Preferred language", preferredLanguageComboBox)
-            .addLabeledComponent("Response path", responsePathField)
-            .addLabeledComponent("Prompt", promptScrollPane)
+            .addLabeledComponent(message("plugin.settings.maxTokens"), maxTokensField)
+            .addLabeledComponent(message("plugin.settings.fileExtensions"), fileExtensionsField)
+            .addLabeledComponent(message("plugin.settings.serviceProvider"), serviceProviderComboBox)
+            .addLabeledComponent(message("plugin.settings.model"), modelField)
+            .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
+            .addLabeledComponent(claudeApiKeyLabel, claudeApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
+            .addLabeledComponent(geminiApiKeyLabel, geminiApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
+            .addLabeledComponent(groqApiKeyLabel, groqApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
+            .addLabeledComponent(openAiApiKeyLabel, openAiApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
+            .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
+            .addLabeledComponent(
+                message("plugin.settings.preferredLanguage"),
+                preferredLanguageComboBox
+            )
+            .addLabeledComponent(message("plugin.settings.responsePath"), responsePathField)
+            .addLabeledComponent(message("plugin.settings.prompt"), promptScrollPane)
             .addComponentFillVertically(JPanel(), 0)
             .panel
 
