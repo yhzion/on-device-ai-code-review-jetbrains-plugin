@@ -14,6 +14,7 @@ plugins {
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
+description = "This is the default plugin description" // 플러그인 기본 설명
 
 // Set the JVM language level used to build the project.
 kotlin {
@@ -65,19 +66,21 @@ dependencies {
 intellijPlatform {
     pluginConfiguration {
         version = providers.gradleProperty("pluginVersion")
-
         // README.md에서 플러그인 설명 섹션 추출
-        description = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map {
+        description = providers.fileContents(layout.projectDirectory.file("README.md")).asText.map { content ->
             val start = "<!-- Plugin description -->"
             val end = "<!-- Plugin description end -->"
 
-            with(it.lines()) {
+            with(content.lines()) {
                 if (!containsAll(listOf(start, end))) {
-                    throw GradleException("Plugin description section not found in README.md:\n$start ... $end")
+                    // 예외 발생 시 기본 설명 반환
+                    return@map "Plugin description is not provided in README.md. Please add it between '$start' and '$end'."
                 }
-                subList(indexOf(start) + 1, indexOf(end)).joinToString("\n").let(::markdownToHTML)
+                subList(indexOf(start) + 1, indexOf(end))
+                    .joinToString("\n")
+                    .let(::markdownToHTML)
             }
-        }
+        }.orElse("Default plugin description")
 
         val changelog = project.changelog // 로컬 변수로 설정 캐시 호환성 확보
         // 최신 변경 사항을 changelog 파일에서 가져오기
