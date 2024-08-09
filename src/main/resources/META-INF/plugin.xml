@@ -1,6 +1,6 @@
 <idea-plugin>
     <id>com.github.yhzion.jetbrains.plugin.deltareview</id>
-    <name>AI Code Review</name>
+    <name>On-Device AI Code Review</name>
     <vendor>JeonYoungHo</vendor>
     <description>OnDeviceReviewer: AI-Powered Code Reviews Right on Your Device
 
