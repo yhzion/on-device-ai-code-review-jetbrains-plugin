@@ -1,6 +1,6 @@
 package com.github.yhzion.jetbrains.plugin.deltareview.toolWindow
 
-import com.github.yhzion.jetbrains.plugin.deltareview.services.CodeReviewService
+import com.github.yhzion.jetbrains.plugin.deltareview.services.DeltaReviewService
 import com.github.yhzion.jetbrains.plugin.deltareview.services.FileReviewResult
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -31,7 +31,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
     }
 
     private fun runCodeReview() {
-        val reviewService = CodeReviewService(project)
+        val reviewService = DeltaReviewService(project)
 
         scope.launch {
             try {

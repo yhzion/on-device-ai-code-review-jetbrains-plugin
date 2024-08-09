@@ -10,10 +10,27 @@ import com.intellij.util.xmlb.XmlSerializerUtil
 @Service
 @State(name = "DeltaReviewSettings", storages = [Storage("DeltaReviewPluginSettings.xml")])
 class DeltaReviewSettings : PersistentStateComponent<DeltaReviewSettings> {
-    var ENDPOINT = "http://localhost:11434/api/chat"
+    var OLLAMA_ENDPOINT = "http://localhost:11434/api/chat"
+    var CLAUDE_ENDPOINT = "https://api.anthropic.com/v1/messages"
+    var GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent?key={API_KEY}"
+    var GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
+    var OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions"
+
+    var CLAUDE_API_KEY = ""
+    var GEMINI_API_KEY = ""
+    var GROQ_API_KEY = ""
+    var OPENAI_API_KEY = ""
+
     var MAX_TOKENS = 4096
     var FILE_EXTENSIONS = ".json$|.xml$|.ts$|.js$|.html$|.vue$|.sh$|.tsx$|.jsx$|.py$|.css$|.kt$"
-    var RESPONSE_PATH = ".message.content"
+
+    // 서비스 제공자별 RESPONSE_PATH 추가
+    var OLLAMA_RESPONSE_PATH = ".message.content"
+    var CLAUDE_RESPONSE_PATH = ".content[0].text"
+    var GEMINI_RESPONSE_PATH = ".candidates[0].content.parts[0].text"
+    var GROQ_RESPONSE_PATH = ".choices[0].message.content"
+    var OPENAI_RESPONSE_PATH = ".choices[0].message.content"
+
     var SERVICE_PROVIDER = "ollama"
     var MODEL = "gemma2"
     var ANTHROPIC_VERSION = "2023-06-01"
@@ -50,10 +67,6 @@ You are a code reviewer. You provide feedback based on evidence and logic.
 
 <description>
     """.trimIndent()
-
-    // API 키는 별도로 저장하고 버전 관리에서 제외
-    @Transient
-    var API_KEY = ""
 
     override fun getState() = this
 

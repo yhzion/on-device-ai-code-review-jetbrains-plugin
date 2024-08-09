@@ -1,6 +1,6 @@
 package com.github.yhzion.jetbrains.plugin.deltareview
 
-import com.github.yhzion.jetbrains.plugin.deltareview.services.CodeReviewService
+import com.github.yhzion.jetbrains.plugin.deltareview.services.DeltaReviewService
 import com.github.yhzion.jetbrains.plugin.deltareview.services.FileReviewResult
 import com.github.yhzion.jetbrains.plugin.deltareview.toolWindow.DeltaReviewToolWindow
 import com.intellij.openapi.actionSystem.AnAction
@@ -12,7 +12,7 @@ import kotlinx.coroutines.runBlocking
 class DeltaReviewAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
-        val reviewService = CodeReviewService(project)
+        val reviewService = DeltaReviewService(project)
 
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Delta review")
 

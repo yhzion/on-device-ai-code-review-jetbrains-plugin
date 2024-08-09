@@ -1,5 +1,7 @@
+/bin
 .gradle
 .idea
 .intellijPlatform
 .qodana
 build
+project-prompt.txt

@@ -17,7 +17,7 @@ import org.json.JSONObject
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
-class CodeReviewService(private val project: Project) {
+class DeltaReviewService(private val project: Project) {
 
     private val settings = DeltaReviewSettings.instance
     private val client = OkHttpClient.Builder()
@@ -83,13 +83,22 @@ class CodeReviewService(private val project: Project) {
             else -> createDefaultRequestBody(dynamicPrompt, fullContent, changedContent)
         }
 
-        var endpoint = settings.ENDPOINT
-        // Check if provider is gemini
-        if (settings.SERVICE_PROVIDER == "gemini") {
-            // replace {MODEL} with settings.MODEL
-            endpoint = endpoint.replace("{MODEL}", settings.MODEL)
-            // replace {API_KEY} with settings.API_KEY
-            endpoint = endpoint.replace("{API_KEY}", settings.API_KEY)
+        val endpoint = when (settings.SERVICE_PROVIDER) {
+            "ollama" -> settings.OLLAMA_ENDPOINT
+            "claude" -> settings.CLAUDE_ENDPOINT
+            "gemini" -> settings.GEMINI_ENDPOINT.replace("{MODEL}", settings.MODEL).replace("{API_KEY}", settings.GEMINI_API_KEY)
+            "groq" -> settings.GROQ_ENDPOINT
+            "openai" -> settings.OPENAI_ENDPOINT
+            else -> throw IllegalArgumentException("Unknown service provider: ${settings.SERVICE_PROVIDER}")
+        }
+
+        val responsePath = when (settings.SERVICE_PROVIDER) {
+            "ollama" -> settings.OLLAMA_RESPONSE_PATH
+            "claude" -> settings.CLAUDE_RESPONSE_PATH
+            "gemini" -> settings.GEMINI_RESPONSE_PATH
+            "groq" -> settings.GROQ_RESPONSE_PATH
+            "openai" -> settings.OPENAI_RESPONSE_PATH
+            else -> throw IllegalArgumentException("Unknown service provider: ${settings.SERVICE_PROVIDER}")
         }
 
         println(endpoint)
@@ -101,10 +110,10 @@ class CodeReviewService(private val project: Project) {
             .apply {
                 when (settings.SERVICE_PROVIDER) {
                     "claude" -> {
-                        addHeader("x-api-key", settings.API_KEY)
+                        addHeader("x-api-key", settings.CLAUDE_API_KEY)
                         addHeader("anthropic-version", settings.ANTHROPIC_VERSION)
                     }
-                    "chatgpt", "groq" -> addHeader("Authorization", "Bearer ${settings.API_KEY}")
+                    "openai", "groq" -> addHeader("Authorization", "Bearer ${settings.OPENAI_API_KEY}")
                 }
             }
             .build()
@@ -116,8 +125,8 @@ class CodeReviewService(private val project: Project) {
             val jsonResponse = JSONObject(responseBody)
 
             println("Response body: $jsonResponse")
-            println("Response path: ${settings.RESPONSE_PATH}")
-            extractContentFromJson(jsonResponse, settings.RESPONSE_PATH)
+            println("Response path: $responsePath")
+            extractContentFromJson(jsonResponse, responsePath)
         }
     }
 

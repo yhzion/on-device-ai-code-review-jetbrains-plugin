@@ -9,11 +9,14 @@ import javax.swing.*
 import java.awt.event.ItemEvent
 
 class CodeReviewSettingsComponent {
-    private val endpointField = JBTextField()
+    private val ollamaEndpointField = JBTextField()
+    private val claudeApiKeyField = JBTextField()
+    private val geminiApiKeyField = JBTextField()
+    private val groqApiKeyField = JBTextField()
+    private val openAiApiKeyField = JBTextField()
     private val maxTokensField = JBTextField()
     private val fileExtensionsField = JBTextField()
     private val modelField = JBTextField()
-    private val apiKeyField = JBTextField()
     private val responsePathField = JBTextField()
     private val anthropicVersionField = JBTextField()
     private val promptField = JTextArea(5, 50).apply {
@@ -22,64 +25,43 @@ class CodeReviewSettingsComponent {
     }
     private val promptScrollPane = JBScrollPane(promptField)
 
-    private val apiKeyLabel = JLabel("API Key")
-    private val anthropicVersionLabel = JLabel("ANTHROPIC_VERSION")
+    private val claudeApiKeyLabel = JLabel("Claude API Key")
+    private val geminiApiKeyLabel = JLabel("Gemini API Key")
+    private val groqApiKeyLabel = JLabel("Groq API Key")
+    private val openAiApiKeyLabel = JLabel("OpenAI API Key")
+    private val ollamaEndpointLabel = JLabel("Ollama Endpoint")
+    private val anthropicVersionLabel = JLabel("Anthropic version")
 
     private val panel: JPanel
 
-    private val serviceProviders = listOf("claude", "chatgpt", "gemini", "groq", "ollama")
+    private val serviceProviders = listOf("ollama", "claude", "openai", "gemini", "groq")
     private val serviceProviderComboBox = ComboBox(serviceProviders.toTypedArray())
 
     private val languages = loadLanguagesFromFile("language_list.json")
     private val languageNames = languages.map { it.name }
     private val preferredLanguageComboBox = ComboBox(languageNames.toTypedArray())
 
-    private val presets = mapOf(
-        "claude" to Preset(
-            "https://api.anthropic.com/v1/messages",
-            "claude-3-5-sonnet-20240620",
-            ".content[0].text",
-            "2023-06-01"
-        ),
-        "chatgpt" to Preset(
-            "https://api.openai.com/v1/chat/completions",
-            "gpt-4o-mini",
-            ".choices[0].message.content"
-        ),
-        "gemini" to Preset(
-            "https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent?key={API_KEY}",
-            "gemini-1.5-flash",
-            ".candidates[0].content.parts[0].text"
-        ),
-        "groq" to Preset(
-            "https://api.groq.com/openai/v1/chat/completions",
-            "llama-3.1-8b-instant",
-            ".choices[0].message.content"
-        ),
-        "ollama" to Preset(
-            "http://localhost:11434/api/chat",
-            "gemma2",
-            ".message.content"
-        )
-    )
-
     init {
         serviceProviderComboBox.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
-                println("Selected provider: ${serviceProviderComboBox.selectedItem}") // 디버깅용 로그 추가
-                updateFieldsFromPreset(null)
+                updateFieldsForSelectedProvider()
+                updateFieldVisibility()
             }
         }
 
         panel = FormBuilder.createFormBuilder()
-            .addLabeledComponent("Endpoint", endpointField)
             .addLabeledComponent("Max tokens", maxTokensField)
             .addLabeledComponent("File extensions", fileExtensionsField)
             .addLabeledComponent("Service provider", serviceProviderComboBox)
             .addLabeledComponent("Model", modelField)
-            .addLabeledComponent(apiKeyLabel, apiKeyField)
+            .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)
+            .addLabeledComponent(claudeApiKeyLabel, claudeApiKeyField)
+            .addLabeledComponent(geminiApiKeyLabel, geminiApiKeyField)
+            .addLabeledComponent(groqApiKeyLabel, groqApiKeyField)
+            .addLabeledComponent(openAiApiKeyLabel, openAiApiKeyField)
             .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
             .addLabeledComponent("Preferred language", preferredLanguageComboBox)
+            .addLabeledComponent("Response path", responsePathField)
             .addLabeledComponent("Prompt", promptScrollPane)
             .addComponentFillVertically(JPanel(), 0)
             .panel
@@ -87,106 +69,127 @@ class CodeReviewSettingsComponent {
         updateFieldVisibility()
     }
 
-    private fun updateFieldsFromPreset(settings: DeltaReviewSettings?) {
-        // Check if settings is null to avoid overwriting user input
-        val _settings = settings ?: DeltaReviewSettings.instance
+    private fun updateFieldsForSelectedProvider() {
+        val selectedProvider = serviceProviderComboBox.selectedItem as String
 
-            println("Updating fields from preset") // 디버깅용 로그 추가
-            val selectedProvider = serviceProviderComboBox.selectedItem as String
-            val preset = presets[selectedProvider]
-
-        // selectedProvider 가 ollama 이고 _settings.ENDPOINT 가 값이 존재할때
-            if (selectedProvider == "ollama" && _settings.ENDPOINT.isNotEmpty()) {
-                // modelField text 값이 존재하면
-                if(modelField.text.isNotEmpty()) {
-                    preset?.let {
-                        responsePathField.text = it.responsePath
-                        anthropicVersionField.text = it.anthropicVersion ?: ""
-                    }
-                } else {
-                    preset?.let {
-                        modelField.text = it.model
-                        responsePathField.text = it.responsePath
-                        anthropicVersionField.text = it.anthropicVersion ?: ""
-                    }
-                }
-            } else{
-                preset?.let {
-                    endpointField.text = it.endpoint
-                    modelField.text = it.model
-                    responsePathField.text = it.responsePath
-                    anthropicVersionField.text = it.anthropicVersion ?: ""
-                }
+        when (selectedProvider) {
+            "claude" -> {
+                modelField.text = "claude-3-5-sonnet-20240620"
+                anthropicVersionField.text = "2023-06-01"
+                responsePathField.text = DeltaReviewSettings.instance.CLAUDE_RESPONSE_PATH
             }
 
-        preset?.let {
-            responsePathField.text = it.responsePath
-        }
+            "openai" -> {
+                modelField.text = "gpt-4o-mini"
+                responsePathField.text = DeltaReviewSettings.instance.OPENAI_RESPONSE_PATH
+            }
 
-        updateFieldVisibility()
+            "gemini" -> {
+                modelField.text = "gemini-1.5-flash"
+                responsePathField.text = DeltaReviewSettings.instance.GEMINI_RESPONSE_PATH
+            }
+
+            "groq" -> {
+                modelField.text = "llama-3.1-70b-versatile"
+                responsePathField.text = DeltaReviewSettings.instance.GROQ_RESPONSE_PATH
+            }
+
+            "ollama" -> {
+                modelField.text = "mistral-nemo"
+                responsePathField.text = DeltaReviewSettings.instance.OLLAMA_RESPONSE_PATH
+            }
+        }
     }
 
     private fun updateFieldVisibility() {
-        println("Selected provider: ${serviceProviderComboBox.selectedItem}") // 디버깅용 로그 추가
         val selectedProvider = serviceProviderComboBox.selectedItem as String
-        apiKeyLabel.isVisible = selectedProvider != "ollama"
-        apiKeyField.isVisible = selectedProvider != "ollama"
+        ollamaEndpointLabel.isVisible = selectedProvider == "ollama"
+        ollamaEndpointField.isVisible = selectedProvider == "ollama"
+        claudeApiKeyLabel.isVisible = selectedProvider == "claude"
+        claudeApiKeyField.isVisible = selectedProvider == "claude"
+        geminiApiKeyLabel.isVisible = selectedProvider == "gemini"
+        geminiApiKeyField.isVisible = selectedProvider == "gemini"
+        groqApiKeyLabel.isVisible = selectedProvider == "groq"
+        groqApiKeyField.isVisible = selectedProvider == "groq"
+        openAiApiKeyLabel.isVisible = selectedProvider == "openai"
+        openAiApiKeyField.isVisible = selectedProvider == "openai"
         anthropicVersionLabel.isVisible = selectedProvider == "claude"
         anthropicVersionField.isVisible = selectedProvider == "claude"
     }
 
     fun apply(settings: DeltaReviewSettings) {
-        println("Applying settings with endpoint: ${endpointField.text}") // 디버깅용 로그 추가
-        settings.ENDPOINT = endpointField.text
+        settings.OLLAMA_ENDPOINT = ollamaEndpointField.text
+        settings.CLAUDE_API_KEY = claudeApiKeyField.text
+        settings.GEMINI_API_KEY = geminiApiKeyField.text
+        settings.GROQ_API_KEY = groqApiKeyField.text
+        settings.OPENAI_API_KEY = openAiApiKeyField.text
         settings.MAX_TOKENS = maxTokensField.text.toIntOrNull() ?: 4096
         settings.FILE_EXTENSIONS = fileExtensionsField.text
         settings.SERVICE_PROVIDER = serviceProviderComboBox.selectedItem as String
         settings.MODEL = modelField.text
-        settings.API_KEY = apiKeyField.text
         settings.ANTHROPIC_VERSION = anthropicVersionField.text
         settings.PROMPT = promptField.text
         settings.PREFERRED_LANGUAGE = preferredLanguageComboBox.selectedItem as String
-        settings.RESPONSE_PATH = responsePathField.text
-        updateFieldsFromPreset(settings)
-        // 테스트
-        println("settings.ENDPOINT: ${settings.ENDPOINT}")
+
+        // 서비스 제공자별 RESPONSE_PATH 설정 적용
+        when (settings.SERVICE_PROVIDER) {
+            "ollama" -> settings.OLLAMA_RESPONSE_PATH = responsePathField.text
+            "claude" -> settings.CLAUDE_RESPONSE_PATH = responsePathField.text
+            "gemini" -> settings.GEMINI_RESPONSE_PATH = responsePathField.text
+            "groq" -> settings.GROQ_RESPONSE_PATH = responsePathField.text
+            "openai" -> settings.OPENAI_RESPONSE_PATH = responsePathField.text
+        }
     }
 
     fun reset(settings: DeltaReviewSettings) {
-        println("Resetting settings with endpoint: ${settings.ENDPOINT}") // 디버깅용 로그 추가
-        endpointField.text = settings.ENDPOINT
+        ollamaEndpointField.text = settings.OLLAMA_ENDPOINT
+        claudeApiKeyField.text = settings.CLAUDE_API_KEY
+        geminiApiKeyField.text = settings.GEMINI_API_KEY
+        groqApiKeyField.text = settings.GROQ_API_KEY
+        openAiApiKeyField.text = settings.OPENAI_API_KEY
         maxTokensField.text = settings.MAX_TOKENS.toString()
         fileExtensionsField.text = settings.FILE_EXTENSIONS
         serviceProviderComboBox.selectedItem = settings.SERVICE_PROVIDER
         modelField.text = settings.MODEL
-        apiKeyField.text = settings.API_KEY
         anthropicVersionField.text = settings.ANTHROPIC_VERSION
         promptField.text = settings.PROMPT
         preferredLanguageComboBox.selectedItem = settings.PREFERRED_LANGUAGE
-        responsePathField.text = settings.RESPONSE_PATH
+
+        // 서비스 제공자별 RESPONSE_PATH 설정 복구
+        when (settings.SERVICE_PROVIDER) {
+            "ollama" -> responsePathField.text = settings.OLLAMA_RESPONSE_PATH
+            "claude" -> responsePathField.text = settings.CLAUDE_RESPONSE_PATH
+            "gemini" -> responsePathField.text = settings.GEMINI_RESPONSE_PATH
+            "groq" -> responsePathField.text = settings.GROQ_RESPONSE_PATH
+            "openai" -> responsePathField.text = settings.OPENAI_RESPONSE_PATH
+        }
         updateFieldVisibility()
-        updateFieldsFromPreset(settings)
     }
 
     fun isModified(settings: DeltaReviewSettings): Boolean {
-        return endpointField.text != settings.ENDPOINT ||
+        val isResponsePathModified = when (settings.SERVICE_PROVIDER) {
+            "ollama" -> responsePathField.text != settings.OLLAMA_RESPONSE_PATH
+            "claude" -> responsePathField.text != settings.CLAUDE_RESPONSE_PATH
+            "gemini" -> responsePathField.text != settings.GEMINI_RESPONSE_PATH
+            "groq" -> responsePathField.text != settings.GROQ_RESPONSE_PATH
+            "openai" -> responsePathField.text != settings.OPENAI_RESPONSE_PATH
+            else -> false
+        }
+
+        return ollamaEndpointField.text != settings.OLLAMA_ENDPOINT ||
+                claudeApiKeyField.text != settings.CLAUDE_API_KEY ||
+                geminiApiKeyField.text != settings.GEMINI_API_KEY ||
+                groqApiKeyField.text != settings.GROQ_API_KEY ||
+                openAiApiKeyField.text != settings.OPENAI_API_KEY ||
                 maxTokensField.text.toIntOrNull() != settings.MAX_TOKENS ||
                 fileExtensionsField.text != settings.FILE_EXTENSIONS ||
                 serviceProviderComboBox.selectedItem != settings.SERVICE_PROVIDER ||
                 modelField.text != settings.MODEL ||
-                apiKeyField.text != settings.API_KEY ||
                 anthropicVersionField.text != settings.ANTHROPIC_VERSION ||
                 promptField.text != settings.PROMPT ||
-                responsePathField.text != settings.RESPONSE_PATH ||
-                preferredLanguageComboBox.selectedItem != settings.PREFERRED_LANGUAGE
+                preferredLanguageComboBox.selectedItem != settings.PREFERRED_LANGUAGE ||
+                isResponsePathModified
     }
 
     fun getPanel(): JPanel = panel
 }
-
-data class Preset(
-    val endpoint: String,
-    val model: String,
-    val responsePath: String,
-    val anthropicVersion: String? = null
-)

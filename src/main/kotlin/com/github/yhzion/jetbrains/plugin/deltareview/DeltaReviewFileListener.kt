@@ -12,6 +12,6 @@ class DeltaReviewFileListener(private val project: Project) : VirtualFileListene
     }
 
     private fun runCodeReview() {
-        // CodeReviewAction의 로직을 여기에 구현
+        
     }
 }
