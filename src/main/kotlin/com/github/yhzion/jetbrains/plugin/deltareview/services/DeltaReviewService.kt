@@ -40,16 +40,16 @@ class DeltaReviewService(private val project: Project) {
         progressCallback("Found ${changedFiles.size} changed files")
 
         changedFiles.mapNotNull { file ->
-            progressCallback("Reviewing file: ${file.name}")
+            progressCallback(file.name)
             val fullContent = file.contentsToByteArray().toString(Charsets.UTF_8)
             val changedContent = getChangedContent(file)
             if (changedContent.isNotEmpty()) {
-                progressCallback("Sending review request for ${file.name}")
+                progressCallback(file.name)
                 val review = requestReview(file.name, fullContent, changedContent)
-                progressCallback("Received review for ${file.name}")
+                progressCallback("file.name")
                 FileReviewResult(file.name, review)
             } else {
-                progressCallback("Skipping ${file.name} (no changes)")
+                progressCallback(file.name)
                 null
             }
         }
