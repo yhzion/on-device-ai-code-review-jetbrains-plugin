@@ -58,7 +58,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.vladsch.flexmark:flexmark-all:0.62.2")
     implementation("org.json:json:20231013")
-    implementation("com.google.code.gson:gson:2.8.8")
+    implementation("com.google.code.gson:gson:2.11.0")
 }
 
 // IntelliJ Platform Gradle Plugin 설정
