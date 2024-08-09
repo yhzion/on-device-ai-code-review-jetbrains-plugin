@@ -1,7 +1,10 @@
+package com.github.yhzion.jetbrains.plugin.deltareview.toolWindow
+
 import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle
 import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
 import com.github.yhzion.jetbrains.plugin.deltareview.services.DeltaReviewService
 import com.github.yhzion.jetbrains.plugin.deltareview.services.FileReviewResult
+import com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -26,27 +29,24 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
     private val scope = CoroutineScope(Dispatchers.Default + Job())
 
     init {
-        providerLabel.text = DeltaReviewBundle.message("plugin.review.serviceProvider") + ": ${DeltaReviewSettings.instance.SERVICE_PROVIDER}"
-        modelLabel.text = DeltaReviewBundle.message("plugin.review.model") + ": ${DeltaReviewSettings.instance.MODEL}"
+        updateInfoLabels()
         providerLabel.font = providerLabel.font.deriveFont(Font.PLAIN, 14f)
         modelLabel.font = modelLabel.font.deriveFont(Font.PLAIN, 14f)
-        providerLabel.foreground = JBColor.foreground()  // 글씨 색상을 테마에 맞게 변경
-        modelLabel.foreground = JBColor.foreground()  // 글씨 색상을 테마에 맞게 변경
+        providerLabel.foreground = JBColor.foreground()
+        modelLabel.foreground = JBColor.foreground()
 
-        // 패널 설정
         val infoPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             add(providerLabel)
-            add(Box.createVerticalStrut(5))  // 간격 추가
+            add(Box.createVerticalStrut(5))
             add(modelLabel)
             border = BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(JBColor.border(), 0, true),
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
             )
-            background = JBColor.background() // 배경색을 리뷰 결과 영역과 동일하게 설정
+            background = JBColor.background()
         }
 
-        // 탭 패널로 정보 패널 구성
         val tabbedPane = JTabbedPane().apply {
             addTab(DeltaReviewBundle.message("plugin.review.informationTab"), infoPanel)
         }
@@ -60,20 +60,20 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
             add(runReviewButton)
             add(cancelButton)
             add(Box.createHorizontalGlue())
-            border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // 패딩 추가
+            border = BorderFactory.createEmptyBorder(0, 0, 0, 0)
         }
 
         val buttonAndProgressPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             add(buttonPanel)
             add(progressBar)
-            border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // 패딩 추가
+            border = BorderFactory.createEmptyBorder(0, 0, 0, 0)
         }
 
         val southPanel = JPanel().apply {
             layout = BoxLayout(this, BoxLayout.Y_AXIS)
             add(tabbedPane)
-            border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // 패딩 추가
+            border = BorderFactory.createEmptyBorder(0, 0, 0, 0)
         }
 
         mainPanel.add(markdownPanel.component, BorderLayout.CENTER)
@@ -96,6 +96,20 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
             cancelButton.isEnabled = false
             progressBar.isVisible = false
         }
+
+        // 설정 변경 리스너 등록
+        ApplicationManager.getApplication().messageBus.connect()
+            .subscribe(DeltaReviewSettingsConfigurable.SETTINGS_CHANGED_TOPIC, object : DeltaReviewSettingsConfigurable.SettingsChangedListener {
+                override fun settingsChanged(settings: DeltaReviewSettings) {
+                    updateInfoLabels()
+                }
+            })
+    }
+
+    private fun updateInfoLabels() {
+        val settings = DeltaReviewSettings.instance
+        providerLabel.text = DeltaReviewBundle.message("plugin.review.serviceProvider") + ": ${settings.SERVICE_PROVIDER}"
+        modelLabel.text = DeltaReviewBundle.message("plugin.review.model") + ": ${settings.MODEL}"
     }
 
     private fun runCodeReview() {

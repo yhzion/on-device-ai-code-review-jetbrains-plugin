@@ -32,6 +32,10 @@
     </description>
     <change-notes>
         <![CDATA[
+<h3>Version 0.1.2</h3>
+<ul>
+    <li>Bug fixed on Information panel</li>
+</ul>
 <h3>Version 0.1.1</h3>
 <ul>
     <li>Upgrade library dependencies</li>
@@ -58,7 +62,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
                 factoryClass="com.github.yhzion.jetbrains.plugin.deltareview.toolWindow.DeltaReviewToolWindowFactory"
-                id="Delta review"
+                id="AI Code Review"
                 anchor="right"
                 icon="AllIcons.Toolwindows.Documentation"
         />

@@ -1,6 +1,6 @@
 package com.github.yhzion.jetbrains.plugin.deltareview
 
-import DeltaReviewToolWindow
+import com.github.yhzion.jetbrains.plugin.deltareview.toolWindow.DeltaReviewToolWindow
 import com.github.yhzion.jetbrains.plugin.deltareview.services.DeltaReviewService
 import com.github.yhzion.jetbrains.plugin.deltareview.services.FileReviewResult
 import com.intellij.openapi.actionSystem.AnAction

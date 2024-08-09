@@ -4,6 +4,8 @@ import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
 import com.intellij.openapi.options.Configurable
 import javax.swing.JComponent
 import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.util.messages.Topic
 
 class DeltaReviewSettingsConfigurable : Configurable {
     private var mySettingsComponent: DeltaReviewSettingsComponent? = null
@@ -23,6 +25,9 @@ class DeltaReviewSettingsConfigurable : Configurable {
     override fun apply() {
         val settings = DeltaReviewSettings.instance
         mySettingsComponent!!.apply(settings)
+
+        // 설정 변경 이벤트 발생
+        ApplicationManager.getApplication().messageBus.syncPublisher(SETTINGS_CHANGED_TOPIC).settingsChanged(settings)
     }
 
     override fun reset() {
@@ -32,5 +37,13 @@ class DeltaReviewSettingsConfigurable : Configurable {
 
     override fun disposeUIResources() {
         mySettingsComponent = null
+    }
+
+    companion object {
+        val SETTINGS_CHANGED_TOPIC = Topic.create("DeltaReviewSettingsChanged", SettingsChangedListener::class.java)
+    }
+
+    interface SettingsChangedListener {
+        fun settingsChanged(settings: DeltaReviewSettings)
     }
 }
