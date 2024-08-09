@@ -136,8 +136,25 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
         val markdownToHtml = markdownToHtml(text)
 
         ApplicationManager.getApplication().invokeLater {
-            val newContent = currentContent + "\n" + markdownToHtml
+            val newContent = currentContent + "\n" + applyTextDirection(markdownToHtml)
             markdownPanel.setHtml(newContent, 0)
+        }
+    }
+
+    private fun applyTextDirection(html: String): String {
+        val languageCode = when (DeltaReviewSettings.instance.PREFERRED_LANGUAGE) {
+            "Arabic" -> "ar"
+            "Hebrew" -> "he"
+            "Persian" -> "fa"
+            "Urdu" -> "ur"
+            else -> "en"
+        }
+
+        val isRtl = listOf("ar", "he", "fa", "ur").contains(languageCode)
+        return if (isRtl) {
+            "<div dir=\"rtl\" style=\"text-align: right;\">$html</div>"
+        } else {
+            "<div dir=\"ltr\" style=\"text-align: left;\">$html</div>"
         }
     }
 
@@ -151,7 +168,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
     fun setReviewResult(result: String) {
         ApplicationManager.getApplication().invokeLater {
-            markdownPanel.setHtml(result, 0)
+            markdownPanel.setHtml(applyTextDirection(result), 0)
         }
     }
 

@@ -115,9 +115,10 @@ class DeltaReviewSettingsComponent {
     private fun updateFieldVisibility() {
         val selectedProvider = serviceProviderComboBox.selectedItem as String
         val preferredLanguage = preferredLanguageComboBox.selectedItem as String
+        val preferredLanguageCode = languages.find { it.name == preferredLanguage }?.code ?: "en"
 
         // UI 컴포넌트의 방향성을 언어에 맞게 설정
-        applyComponentOrientationBasedOnLanguage(preferredLanguage, panel)
+        applyComponentOrientationBasedOnLanguage(preferredLanguageCode, panel)
 
         ollamaEndpointLabel.isVisible = selectedProvider == "ollama"
         ollamaEndpointField.isVisible = selectedProvider == "ollama"
@@ -165,6 +166,10 @@ class DeltaReviewSettingsComponent {
         }
         component.componentOrientation =
             if (isRtl) ComponentOrientation.RIGHT_TO_LEFT else ComponentOrientation.LEFT_TO_RIGHT
+
+        // RTL 적용을 위해 HTML 속성 추가
+        val dirAttribute = if (isRtl) "rtl" else "ltr"
+        component.putClientProperty("html", "<div dir=\"$dirAttribute\"></div>")
     }
 
     fun apply(settings: DeltaReviewSettings) {
