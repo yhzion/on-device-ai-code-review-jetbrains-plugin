@@ -1,11 +1,36 @@
 <idea-plugin>
     <id>com.github.yhzion.jetbrains.plugin.deltareview</id>
-    <name>Delta Review with AI</name>
-    <vendor>JEONYOUNGHO</vendor>
-    <description>AI-powered code review plugin for IntelliJ IDEA</description>
+    <name>Code Review On Device</name>
+    <vendor>JeonYoungHo</vendor>
+    <description>OnDeviceReviewer: AI-Powered Code Reviews Right on Your Device
+
+        Transform your code review process with OnDeviceReviewer, the ultimate AI-powered tool designed to run
+        seamlessly on your local device. Say goodbye to relying on cloud services and hello to fast, secure, and private
+        code analysis directly within your development environment.
+
+        Key Features:
+
+        • On-Device AI: Leverage powerful AI models locally without compromising your code’s privacy or waiting on cloud
+        processing.
+        • Instant Feedback: Get real-time code reviews with detailed insights on potential risks, improvements, and best
+        practices.
+        • Multi-Language Support: Effortlessly review code across multiple programming languages with robust support for
+        various file formats.
+        • Customizable Settings: Tailor the AI model, review criteria, and output language to match your workflow and
+        project needs.
+        • Offline Functionality: Conduct thorough code reviews even without an internet connection, ensuring continuous
+        productivity.
+
+        OnDeviceReviewer is your go-to solution for efficient, secure, and comprehensive code reviews, all while keeping
+        your codebase close to home.
+
+        This description highlights the key benefits of using your plugin, emphasizing the privacy, efficiency, and
+        flexibility it offers. It’s designed to attract developers who prioritize on-device processing and real-time
+        feedback in their workflow.
+    </description>
     <change-notes>Bug fixed</change-notes>
 
-    <idea-version since-build="231.1" until-build="252.*" />
+    <idea-version since-build="231.1" until-build="252.*"/>
 
     <depends>com.intellij.modules.platform</depends>
     <depends config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
@@ -29,7 +54,8 @@
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.yhzion.jetbrains.plugin.deltareview.listeners.ApplicationActivationListener" topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+        <listener class="com.github.yhzion.jetbrains.plugin.deltareview.listeners.ApplicationActivationListener"
+                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
 
     <actions>

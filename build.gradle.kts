@@ -115,6 +115,7 @@ intellijPlatform {
             recommended()
         }
     }
+
 }
 
 // Gradle Changelog Plugin 설정
