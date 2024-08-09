@@ -28,7 +28,19 @@
         flexibility it offers. It’s designed to attract developers who prioritize on-device processing and real-time
         feedback in their workflow.
     </description>
-    <change-notes>Bug fixed</change-notes>
+    <change-notes>
+        <![CDATA[
+<h3>Version 0.1.0</h3>
+<ul>
+    <li>Multilingual support</li>
+    <li>Select your preferred answer language</li>
+    <li>Programme stabilisation</li>
+    <li>Critical bug fixes</li>
+    <li>UI improvements</li>
+    <li>Added request cancellation</li>
+</ul>
+        ]]>
+    </change-notes>
 
     <idea-version since-build="231.1" until-build="252.*"/>
 
