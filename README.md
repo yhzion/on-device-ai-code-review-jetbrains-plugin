@@ -68,3 +68,16 @@ For any issues or feature requests, please open an issue on GitHub or contact th
 ---
 
 This plugin helps automate code reviews using AI in JetBrains IDEs. It supports multiple code review providers and improves developers' workflows by analyzing changes to code and providing detailed review results.
+
+<!-- Plugin description -->
+**On-device AI code review plugin** is a powerful tool for automating code reviews in IntelliJ IDEA using various AI models. This plugin supports multiple AI service providers and allows users to personalize the plugin's features through customizable settings.
+
+### Key Features:
+- **Automatic Code Review**: Automatically reviews code changes and provides AI-generated feedback.
+- **Multiple AI Service Support**: Choose from various AI models like Claude, ChatGPT, Gemini, and more.
+- **Customizable Settings**: Adjust settings such as AI response language, maximum token count, API endpoints, and more to suit your workflow.
+- **Language Support**: Supports multiple programming languages and file formats, enabling efficient multilingual code reviews.
+- **Real-Time Feedback**: Receive instant feedback on code changes, including potential risks and suggestions for improvement.
+
+The **On-device AI code review plugin** is focused on helping developers maintain better code quality by streamlining the code review process and maximizing development efficiency.
+<!-- Plugin description end -->
