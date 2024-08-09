@@ -1,40 +1,107 @@
-package com.github.yhzion.jetbrains.plugin.deltareview.toolWindow
-
+import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
 import com.github.yhzion.jetbrains.plugin.deltareview.services.DeltaReviewService
 import com.github.yhzion.jetbrains.plugin.deltareview.services.FileReviewResult
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
+import com.intellij.ui.Gray
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
 import org.intellij.plugins.markdown.ui.preview.jcef.MarkdownJCEFHtmlPanel
 import kotlinx.coroutines.*
-import java.awt.BorderLayout
-import javax.swing.JButton
-import javax.swing.JPanel
-
 import org.intellij.plugins.markdown.ui.preview.MarkdownHtmlPanel
+import com.intellij.ui.JBColor
+import java.awt.*
+import javax.swing.*
 
 class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow) {
     private val mainPanel: JPanel = JPanel(BorderLayout())
     private val markdownPanel: MarkdownHtmlPanel = MarkdownJCEFHtmlPanel(project, null)
     private val runReviewButton: JButton = JButton("Request a review")
+    private val cancelButton: JButton = JButton("Cancel")
+    private val progressBar: JProgressBar = JProgressBar()
+    private val providerLabel: JLabel = JLabel()
+    private val modelLabel: JLabel = JLabel()
     private val scope = CoroutineScope(Dispatchers.Default + Job())
 
     init {
+        providerLabel.text = "Service Provider: ${DeltaReviewSettings.instance.SERVICE_PROVIDER}"
+        modelLabel.text = "Model: ${DeltaReviewSettings.instance.MODEL}"
+        providerLabel.font = providerLabel.font.deriveFont(Font.PLAIN, 14f)
+        modelLabel.font = modelLabel.font.deriveFont(Font.PLAIN, 14f)
+        providerLabel.foreground = JBColor.foreground()  // 글씨 색상을 테마에 맞게 변경
+        modelLabel.foreground = JBColor.foreground()  // 글씨 색상을 테마에 맞게 변경
+
+        // 패널 설정
+        val infoPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            add(providerLabel)
+            add(Box.createVerticalStrut(5))  // 간격 추가
+            add(modelLabel)
+            border = BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(JBColor.border(), 0, true),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+            )
+            background = JBColor.background() // 배경색을 리뷰 결과 영역과 동일하게 설정
+        }
+
+        // 탭 패널로 정보 패널 구성
+        val tabbedPane = JTabbedPane().apply {
+            addTab("Information", infoPanel)
+        }
+
+        progressBar.isIndeterminate = true
+        progressBar.isVisible = false
+        cancelButton.isEnabled = false
+
+        val buttonPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.X_AXIS)
+            add(runReviewButton)
+            add(cancelButton)
+            add(Box.createHorizontalGlue())
+            border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // 패딩 추가
+        }
+
+        val buttonAndProgressPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            add(buttonPanel)
+            add(progressBar)
+            border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // 패딩 추가
+        }
+
+        val southPanel = JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.Y_AXIS)
+            add(tabbedPane)
+            border = BorderFactory.createEmptyBorder(0, 0, 0, 0) // 패딩 추가
+        }
+
         mainPanel.add(markdownPanel.component, BorderLayout.CENTER)
-        mainPanel.add(runReviewButton, BorderLayout.NORTH)
+        mainPanel.add(buttonAndProgressPanel, BorderLayout.NORTH)
+        mainPanel.add(southPanel, BorderLayout.SOUTH)
+
+        markdownPanel.component.isVisible = true
 
         runReviewButton.addActionListener {
+            runReviewButton.isEnabled = false
+            cancelButton.isEnabled = true
+            progressBar.isVisible = true
             runCodeReview()
+        }
+
+        cancelButton.addActionListener {
+            scope.coroutineContext.cancelChildren()
+            appendReviewResult("Review cancelled.\n")
+            runReviewButton.isEnabled = true
+            cancelButton.isEnabled = false
+            progressBar.isVisible = false
         }
     }
 
     private fun runCodeReview() {
-        val reviewService = DeltaReviewService(project)
-
         scope.launch {
             try {
+                val reviewService = DeltaReviewService(project)
                 val results = reviewService.reviewChangedFiles { progress ->
                     withContext(Dispatchers.Main) {
                         appendReviewResult(progress)
@@ -48,6 +115,12 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
                 withContext(Dispatchers.Main) {
                     appendReviewResult("Error occurred: ${e.message}\n")
                 }
+            } finally {
+                withContext(Dispatchers.Main) {
+                    runReviewButton.isEnabled = true
+                    cancelButton.isEnabled = false
+                    progressBar.isVisible = false
+                }
             }
         }
     }
@@ -60,47 +133,30 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
     private fun appendReviewResult(text: String) {
         val currentContent = getCurrentContent()
-
-        // 마크다운 텍스트 출력
-        println("Markdown to append:\n$text")
-
-        // 마크다운을 HTML로 변환
         val markdownToHtml = markdownToHtml(text)
-        println("Converted HTML:\n$markdownToHtml")
 
-        // 두 번째 인자로는 0을 전달하거나, 필요에 따라 인덱스를 지정합니다.
-        val newContent = currentContent + "\n" + markdownToHtml
-        markdownPanel.setHtml(newContent, 0)
-
-        // 변환된 HTML을 출력
-        println("Updated content:\n$newContent")
+        ApplicationManager.getApplication().invokeLater {
+            val newContent = currentContent + "\n" + markdownToHtml
+            markdownPanel.setHtml(newContent, 0)
+        }
     }
 
-    fun markdownToHtml(markdown: String): String {
-        // Flexmark 설정
+    private fun markdownToHtml(markdown: String): String {
         val options = MutableDataSet()
         val parser = Parser.builder(options).build()
         val renderer = HtmlRenderer.builder(options).build()
-
-        // 마크다운을 파싱해서 HTML로 변환
         val document = parser.parse(markdown)
         return renderer.render(document)
     }
 
     fun setReviewResult(result: String) {
-        // 두 번째 인자로는 0을 전달하거나, 필요에 따라 인덱스를 지정합니다.
-        markdownPanel.setHtml(result, 0)
-
-        // 디버그를 위한 로그 출력
-        println("Setting review result with content:\n$result")
+        ApplicationManager.getApplication().invokeLater {
+            markdownPanel.setHtml(result, 0)
+        }
     }
 
     fun getCurrentContent(): String {
-        // 실제로 내용을 가져오는 메서드가 무엇인지 확인하고 작성
-        // 이 예시에서는 패널의 HTML 내용을 가져온다고 가정합니다.
-        val currentContent = markdownPanel.component.toolTipText ?: ""  // 예시로 마크다운 패널의 도구 설명 텍스트를 가져옴
-        println("Current content fetched:\n$currentContent")  // 디버그를 위한 로그 출력
-        return currentContent
+        return markdownPanel.component.toolTipText ?: ""
     }
 
     fun getContent() = mainPanel

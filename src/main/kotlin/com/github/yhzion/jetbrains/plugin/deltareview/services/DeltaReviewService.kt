@@ -124,8 +124,16 @@ class DeltaReviewService(private val project: Project) {
             val responseBody = response.body?.string() ?: throw Exception("Empty response")
             val jsonResponse = JSONObject(responseBody)
 
-            println("Response body: $jsonResponse")
+            // 전체 JSON 응답 로그
+            println("Full JSON response: $jsonResponse")
+
+            // 추출할 경로 확인 로그
             println("Response path: $responsePath")
+
+            // 추출된 결과 로그
+            val extractedContent = extractContentFromJson(jsonResponse, responsePath)
+            println("Extracted content: $extractedContent")
+
             extractContentFromJson(jsonResponse, responsePath)
         }
     }
@@ -173,6 +181,8 @@ class DeltaReviewService(private val project: Project) {
             } else {
                 throw IllegalArgumentException("Unexpected JSON structure for path: $path")
             }
+            // 로그 추가
+            println("Current JSON node after processing key '$key': $current")
         }
 
         return current.toString()
