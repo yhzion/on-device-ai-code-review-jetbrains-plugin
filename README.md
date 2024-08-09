@@ -14,7 +14,7 @@ The **On-device AI Code Review Plugin** is a powerful tool designed to automate 
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/yhzion/on-device-ai-code-review-jetbrains-plugin.git
    ```
 2. Open the project in IntelliJ IDEA.
 
