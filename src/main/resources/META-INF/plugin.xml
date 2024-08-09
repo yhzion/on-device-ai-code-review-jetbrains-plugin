@@ -1,8 +1,10 @@
 <idea-plugin>
     <id>com.github.yhzion.jetbrains.plugin.deltareview</id>
-    <name>Code Review On Device</name>
+    <name>AI Code Review</name>
     <vendor>JeonYoungHo</vendor>
     <description>OnDeviceReviewer: AI-Powered Code Reviews Right on Your Device
+
+        Ollama supports AI-powered code reviews directly on your device, ensuring privacy, efficiency, and flexibility.
 
         Transform your code review process with OnDeviceReviewer, the ultimate AI-powered tool designed to run
         seamlessly on your local device. Say goodbye to relying on cloud services and hello to fast, secure, and private
