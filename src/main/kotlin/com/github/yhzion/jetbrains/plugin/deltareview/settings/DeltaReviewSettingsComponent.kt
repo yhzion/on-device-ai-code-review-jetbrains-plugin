@@ -1,21 +1,22 @@
 package com.github.yhzion.jetbrains.plugin.deltareview.settings
 
 import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle
-import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle.message
 import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.FormBuilder
 import javax.swing.*
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
 import java.awt.event.ItemEvent
 
 class DeltaReviewSettingsComponent {
     private val ollamaEndpointField = JBTextField()
-    private val claudeApiKeyField = JBTextField()
-    private val geminiApiKeyField = JBTextField()
-    private val groqApiKeyField = JBTextField()
-    private val openAiApiKeyField = JBTextField()
+    private val claudeApiKeyField = JPasswordField()
+    private val geminiApiKeyField = JPasswordField()
+    private val groqApiKeyField = JPasswordField()
+    private val openAiApiKeyField = JPasswordField()
     private val maxTokensField = JBTextField()
     private val fileExtensionsField = JBTextField()
     private val modelField = JBTextField()
@@ -27,12 +28,18 @@ class DeltaReviewSettingsComponent {
     }
     private val promptScrollPane = JBScrollPane(promptField)
 
-    private val claudeApiKeyLabel = JLabel(message("plugin.settings.claudeApiKey"))
-    private val geminiApiKeyLabel = JLabel(message("plugin.settings.geminiApiKey"))
-    private val groqApiKeyLabel = JLabel(message("plugin.settings.groqApiKey"))
-    private val openAiApiKeyLabel = JLabel(message("plugin.settings.openAiApiKey"))
-    private val ollamaEndpointLabel = JLabel(message("plugin.settings.ollamaEndpoint"))
-    private val anthropicVersionLabel = JLabel(message("plugin.settings.anthropicVersion"))
+    private val claudeApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.claudeApiKey"))
+    private val geminiApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.geminiApiKey"))
+    private val groqApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.groqApiKey"))
+    private val openAiApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.openAiApiKey"))
+    private val ollamaEndpointLabel = JLabel(DeltaReviewBundle.message("plugin.settings.ollamaEndpoint"))
+    private val anthropicVersionLabel = JLabel(DeltaReviewBundle.message("plugin.settings.anthropicVersion"))
+
+    // 패스워드 필드와 보이기/숨기기 버튼 패널들
+    private val claudePanel = createPasswordFieldWithToggle(claudeApiKeyField)
+    private val geminiPanel = createPasswordFieldWithToggle(geminiApiKeyField)
+    private val groqPanel = createPasswordFieldWithToggle(groqApiKeyField)
+    private val openAiPanel = createPasswordFieldWithToggle(openAiApiKeyField)
 
     private val panel: JPanel
 
@@ -52,22 +59,22 @@ class DeltaReviewSettingsComponent {
         }
 
         panel = FormBuilder.createFormBuilder()
-            .addLabeledComponent(message("plugin.settings.maxTokens"), maxTokensField)
-            .addLabeledComponent(message("plugin.settings.fileExtensions"), fileExtensionsField)
-            .addLabeledComponent(message("plugin.settings.serviceProvider"), serviceProviderComboBox)
-            .addLabeledComponent(message("plugin.settings.model"), modelField)
-            .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
-            .addLabeledComponent(claudeApiKeyLabel, claudeApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
-            .addLabeledComponent(geminiApiKeyLabel, geminiApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
-            .addLabeledComponent(groqApiKeyLabel, groqApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
-            .addLabeledComponent(openAiApiKeyLabel, openAiApiKeyField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
-            .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)  // 이미 라벨에 대한 국제화 처리가 되어 있다고 가정
+            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.maxTokens"), maxTokensField)
+            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.fileExtensions"), fileExtensionsField)
+            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.serviceProvider"), serviceProviderComboBox)
+            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.model"), modelField)
+            .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)
+            .addLabeledComponent(claudeApiKeyLabel, claudePanel)
+            .addLabeledComponent(geminiApiKeyLabel, geminiPanel)
+            .addLabeledComponent(groqApiKeyLabel, groqPanel)
+            .addLabeledComponent(openAiApiKeyLabel, openAiPanel)
+            .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
             .addLabeledComponent(
-                message("plugin.settings.preferredLanguage"),
+                DeltaReviewBundle.message("plugin.settings.preferredLanguage"),
                 preferredLanguageComboBox
             )
-            .addLabeledComponent(message("plugin.settings.responsePath"), responsePathField)
-            .addLabeledComponent(message("plugin.settings.prompt"), promptScrollPane)
+            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.responsePath"), responsePathField)
+            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.prompt"), promptScrollPane)
             .addComponentFillVertically(JPanel(), 0)
             .panel
 
@@ -110,24 +117,50 @@ class DeltaReviewSettingsComponent {
         val selectedProvider = serviceProviderComboBox.selectedItem as String
         ollamaEndpointLabel.isVisible = selectedProvider == "ollama"
         ollamaEndpointField.isVisible = selectedProvider == "ollama"
+
+        // API 키 필드 및 패널 가시성 조정
         claudeApiKeyLabel.isVisible = selectedProvider == "claude"
-        claudeApiKeyField.isVisible = selectedProvider == "claude"
+        claudePanel.isVisible = selectedProvider == "claude"
+
         geminiApiKeyLabel.isVisible = selectedProvider == "gemini"
-        geminiApiKeyField.isVisible = selectedProvider == "gemini"
+        geminiPanel.isVisible = selectedProvider == "gemini"
+
         groqApiKeyLabel.isVisible = selectedProvider == "groq"
-        groqApiKeyField.isVisible = selectedProvider == "groq"
+        groqPanel.isVisible = selectedProvider == "groq"
+
         openAiApiKeyLabel.isVisible = selectedProvider == "openai"
-        openAiApiKeyField.isVisible = selectedProvider == "openai"
+        openAiPanel.isVisible = selectedProvider == "openai"
+
         anthropicVersionLabel.isVisible = selectedProvider == "claude"
         anthropicVersionField.isVisible = selectedProvider == "claude"
     }
 
+    private fun createPasswordFieldWithToggle(passwordField: JPasswordField): JPanel {
+        val showHideButton = JButton(DeltaReviewBundle.message("plugin.settings.show")).apply {
+            addActionListener {
+                if (passwordField.echoCharIsSet()) {
+                    passwordField.echoChar = '\u0000'
+                    text = DeltaReviewBundle.message("plugin.settings.hide")
+                } else {
+                    passwordField.echoChar = '*'
+                    text = DeltaReviewBundle.message("plugin.settings.show")
+                }
+            }
+        }
+
+        return JPanel().apply {
+            layout = BoxLayout(this, BoxLayout.X_AXIS)
+            add(passwordField)
+            add(showHideButton)
+        }
+    }
+
     fun apply(settings: DeltaReviewSettings) {
         settings.OLLAMA_ENDPOINT = ollamaEndpointField.text
-        settings.CLAUDE_API_KEY = claudeApiKeyField.text
-        settings.GEMINI_API_KEY = geminiApiKeyField.text
-        settings.GROQ_API_KEY = groqApiKeyField.text
-        settings.OPENAI_API_KEY = openAiApiKeyField.text
+        settings.CLAUDE_API_KEY = String(claudeApiKeyField.password)
+        settings.GEMINI_API_KEY = String(geminiApiKeyField.password)
+        settings.GROQ_API_KEY = String(groqApiKeyField.password)
+        settings.OPENAI_API_KEY = String(openAiApiKeyField.password)
         settings.MAX_TOKENS = maxTokensField.text.toIntOrNull() ?: 4096
         settings.FILE_EXTENSIONS = fileExtensionsField.text
         settings.SERVICE_PROVIDER = serviceProviderComboBox.selectedItem as String
@@ -159,7 +192,6 @@ class DeltaReviewSettingsComponent {
         anthropicVersionField.text = settings.ANTHROPIC_VERSION
         promptField.text = settings.PROMPT
         preferredLanguageComboBox.selectedItem = settings.PREFERRED_LANGUAGE
-
         // 서비스 제공자별 RESPONSE_PATH 설정 복구
         when (settings.SERVICE_PROVIDER) {
             "ollama" -> responsePathField.text = settings.OLLAMA_RESPONSE_PATH
@@ -182,10 +214,10 @@ class DeltaReviewSettingsComponent {
         }
 
         return ollamaEndpointField.text != settings.OLLAMA_ENDPOINT ||
-                claudeApiKeyField.text != settings.CLAUDE_API_KEY ||
-                geminiApiKeyField.text != settings.GEMINI_API_KEY ||
-                groqApiKeyField.text != settings.GROQ_API_KEY ||
-                openAiApiKeyField.text != settings.OPENAI_API_KEY ||
+                String(claudeApiKeyField.password) != settings.CLAUDE_API_KEY ||
+                String(geminiApiKeyField.password) != settings.GEMINI_API_KEY ||
+                String(groqApiKeyField.password) != settings.GROQ_API_KEY ||
+                String(openAiApiKeyField.password) != settings.OPENAI_API_KEY ||
                 maxTokensField.text.toIntOrNull() != settings.MAX_TOKENS ||
                 fileExtensionsField.text != settings.FILE_EXTENSIONS ||
                 serviceProviderComboBox.selectedItem != settings.SERVICE_PROVIDER ||
