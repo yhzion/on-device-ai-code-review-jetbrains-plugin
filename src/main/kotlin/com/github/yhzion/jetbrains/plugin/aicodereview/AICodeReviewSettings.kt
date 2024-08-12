@@ -36,10 +36,9 @@ class AICodeReviewSettings : PersistentStateComponent<AICodeReviewSettings> {
     var MODEL = "gemma2"
     var ANTHROPIC_VERSION = "2023-06-01"
     var PREFERRED_LANGUAGE = "English"
-    var PROMPT_START = "Please answer me {PREFERRED_LANGUAGE}, contains paragraph and header or title: ["
-    var PROMPT_END = "]"
 
-    var PROMPT = """$PROMPT_START
+
+    var PROMPT = """
 <Role>
 You are a code reviewer. You provide feedback based on evidence and logic.
 
@@ -50,13 +49,10 @@ You are a code reviewer. You provide feedback based on evidence and logic.
 - Your review should be detailed, easily understandable, and specific enough for someone who is not skilled in programming to understand.
 
 <Request>
-- Please review the entire contents of the following file, along with any changes to the code based on the translated language.
-- 
+- Please review the entire contents of the following file, along with any changes to the code based on the translated language. 
 
 <Response instructions>
-- Title is just file name and extension only.
-- A brief list of changes, potential risks, and improvements for each.
-$PROMPT_END
+- A brief list of <changes>, <potential risks>, and <improvements> for each.
 """.trimIndent()
 
     var USE_STREAMING = true // 스트리밍 기능 활성화 여부

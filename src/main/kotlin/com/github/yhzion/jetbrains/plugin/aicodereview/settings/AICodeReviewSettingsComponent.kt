@@ -61,12 +61,12 @@ class AICodeReviewSettingsComponent {
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.fileExtensions"), fileExtensionsField)
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.serviceProvider"), serviceProviderComboBox)
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.model"), modelField)
-            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.ollamaEndpoint"), ollamaEndpointField)
-            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.claudeApiKey"), claudePanel)
-            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.geminiApiKey"), geminiPanel)
-            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.groqApiKey"), groqPanel)
-            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.openAiApiKey"), openAiPanel)
-            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.anthropicVersion"), anthropicVersionField)
+            .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)
+            .addLabeledComponent(claudeApiKeyLabel, claudePanel)
+            .addLabeledComponent(geminiApiKeyLabel, geminiPanel)
+            .addLabeledComponent(groqApiKeyLabel, groqPanel)
+            .addLabeledComponent(openAiApiKeyLabel, openAiPanel)
+            .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
             .addLabeledComponent(
                 AICodeReviewBundle.message("plugin.settings.preferredLanguage"),
                 preferredLanguageComboBox
@@ -101,12 +101,12 @@ class AICodeReviewSettingsComponent {
             }
 
             "groq" -> {
-                modelField.text = "llama-3.1-70b-versatile"
+                modelField.text = "gemma2-9b-it"
                 responsePathField.text = AICodeReviewSettings.instance.GROQ_RESPONSE_PATH
             }
 
             "ollama" -> {
-                modelField.text = "mistral-nemo"
+                modelField.text = "gemma2"
                 responsePathField.text = AICodeReviewSettings.instance.OLLAMA_RESPONSE_PATH
             }
         }
@@ -197,6 +197,8 @@ class AICodeReviewSettingsComponent {
             "groq" -> settings.GROQ_RESPONSE_PATH = responsePathField.text
             "openai" -> settings.OPENAI_RESPONSE_PATH = responsePathField.text
         }
+
+        updateFieldVisibility()
     }
 
     fun reset(settings: AICodeReviewSettings) {

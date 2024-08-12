@@ -28,10 +28,6 @@ class AICodeReviewService(private val project: Project) {
         .addInterceptor { chain ->
             val request = chain.request()
             val response = chain.proceed(request)
-//            println("HTTP ${request.method} ${request.url}")
-//            println("Request headers: ${request.headers}")
-//            println("Response code: ${response.code}")
-//            println("Response headers: ${response.headers}")
             response
         }
         .build()
@@ -39,11 +35,6 @@ class AICodeReviewService(private val project: Project) {
     suspend fun reviewChangedFiles(progressCallback: suspend (String) -> Unit): List<FileReviewResult> = withContext(Dispatchers.IO) {
         val changedFiles = getChangedFiles()
         progressCallback("Found ${changedFiles.size} changed files\n")
-        // Append changed filename list
-        // ex) Found 3 changed files
-        //    - file1
-        //    - file2
-        //    - file3
         changedFiles.forEach { file ->
             progressCallback("- ${file.name}\n")
         }
@@ -84,10 +75,39 @@ class AICodeReviewService(private val project: Project) {
     }
 
     private suspend fun requestReview(fileName: String, fullContent: String, changedContent: String, progressCallback: suspend (String) -> Unit): String = withContext(Dispatchers.IO) {
-        val PROMPT_START = "You must response in {PREFERRED_LANGUAGE}: ["
-        val PROMPT_END = "]"
+        var PROMPT_START = """
+        <Role>
+You are a code reviewer. You must respond in {PREFERRED_LANGUAGE} only.
+
+<Instructions>
+- Your response should be entirely in {PREFERRED_LANGUAGE}. No part of the response should be in another language.
+- The title of the response should be "${fileName} Review".
+- The response should include sections titled <Changes>, <Potential Risks>, and <Improvements>.
+- If the code review includes file content, provide detailed feedback for each section.
+
+<Request>
+Please guide me in {PREFERRED_LANGUAGE}:
+
+<Response format>
+- Every sentence and all content must be in {PREFERRED_LANGUAGE}.
+- The opening subject of the response should be "${fileName} Review".
+- The response should be structured as follows:
+  - Title: ${fileName} Review
+  - Changes
+  - Potential Risks
+  - Improvements
+
+<Language>
+Remember: Only {PREFERRED_LANGUAGE} should be used in your response.
+        """.trimIndent()
+        var PROMPT_END = """
+            
+            """
+        // Replace {PREFERRED_LANGUAGE} with the settings.PREFERRED_LANGUAGE
+        PROMPT_START = PROMPT_START.replace("{PREFERRED_LANGUAGE}", settings.PREFERRED_LANGUAGE)
+
         val dynamicPromptContent = settings.PROMPT
-        val dynamicPrompt = "$PROMPT_START\n$dynamicPromptContent\n$PROMPT_END".replace("{PREFERRED_LANGUAGE}", settings.PREFERRED_LANGUAGE)
+        val dynamicPrompt = "$PROMPT_START\n$dynamicPromptContent\n$PROMPT_END"
 
         val requestBody = createRequestBody(dynamicPrompt, fullContent, changedContent)
         val endpoint = getEndpointForServiceProvider(settings.SERVICE_PROVIDER)
@@ -99,7 +119,8 @@ class AICodeReviewService(private val project: Project) {
             .apply {
                 when (settings.SERVICE_PROVIDER) {
                     "claude" -> addHeader("x-api-key", settings.CLAUDE_API_KEY)
-                    "openai", "groq" -> addHeader("Authorization", "Bearer ${settings.OPENAI_API_KEY}")
+                    "openai" -> addHeader("Authorization", "Bearer ${settings.OPENAI_API_KEY}")
+                    "groq" -> addHeader("Authorization", "Bearer ${settings.GROQ_API_KEY}")
                 }
             }
             .build()
@@ -111,15 +132,39 @@ class AICodeReviewService(private val project: Project) {
 
             val bufferedSource = response.body?.source() ?: throw Exception("Empty response")
             val buffer = Buffer()
-
+            //println("Streaming enabled: ${settings.USE_STREAMING}")
             while (!bufferedSource.exhausted()) {
+                //println("Reading chunk")
                 bufferedSource.read(buffer, settings.STREAMING_CHUNK_SIZE.toLong())
-                val chunk = buffer.readUtf8()
-                val jsonChunk = JSONObject(chunk)
+                //println("Buffer size: ${buffer.size+10000}")
+                var chunk = buffer.readUtf8()
 
+
+                // chunk is startsWith data: then remove it
+                val dataPrefix = "data:"
+                val dataPrefixIndex = chunk.indexOf(dataPrefix)
+                if (dataPrefixIndex != -1) {
+                    chunk = chunk.substring(dataPrefixIndex + dataPrefix.length)
+                }
+
+                //println("Chunk: $chunk")
+
+
+                val isArray = chunk.startsWith("[") && chunk.endsWith("]") && chunk.count { it == '{' } > 1
+                val jsonChunk = if (isArray) {
+                    val jsonArray = JSONArray(chunk)
+                    jsonArray.getJSONObject(0)
+                } else {
+                    //println("Chunk is not an array. It's an object.")
+                    JSONObject(chunk)
+                }
+
+                //println("JSON Chunk: $jsonChunk")
                 // 서비스 프로바이더에 맞는 RESPONSE_PATH 사용
                 val responsePath = getResponsePathForServiceProvider(settings.SERVICE_PROVIDER)
+                //println("Response path: $responsePath")
                 val extractedContent = extractContentFromJson(jsonChunk, responsePath)
+                //println("Extracted content: $extractedContent")
 
                 // 실시간 업데이트
                 withContext(Dispatchers.Main) {
@@ -127,6 +172,10 @@ class AICodeReviewService(private val project: Project) {
                 }
 
                 result.append(extractedContent)
+
+
+
+
             }
         }
 
@@ -134,15 +183,28 @@ class AICodeReviewService(private val project: Project) {
     }
 
     private fun createRequestBody(prompt: String, fullContent: String, changedContent: String): RequestBody {
-//        println("Prompt '$prompt'")
         val json = JSONObject().apply {
-            put("model", settings.MODEL)
-            put("stream", true)
-            put("max_tokens", settings.MAX_TOKENS)
-            put("messages", JSONArray().put(JSONObject().apply {
-                put("role", "user")
-                put("content", "$prompt\n\nFull file content:\n$fullContent\n\nChanged content:\n$changedContent")
-            }))
+            if (settings.SERVICE_PROVIDER == "gemini") {
+                put("contents", JSONArray().put(JSONObject().apply {
+                    put("role", "user")
+                    put("parts", JSONArray().put(JSONObject().apply {
+                        put("text", prompt)
+                    }))
+                }))
+            } else {
+                if(settings.SERVICE_PROVIDER == "groq") {
+                    put("stream", false)
+                } else {
+                    put("stream", true)
+                }
+                put("model", settings.MODEL)
+
+                put("max_tokens", settings.MAX_TOKENS)
+                put("messages", JSONArray().put(JSONObject().apply {
+                    put("role", "user")
+                    put("content", "$prompt\n\nFull file content:\n$fullContent\n\nChanged content:\n$changedContent")
+                }))
+            }
         }
         return json.toString().toRequestBody("application/json".toMediaType())
     }
@@ -150,9 +212,12 @@ class AICodeReviewService(private val project: Project) {
     private fun extractContentFromJson(json: JSONObject, path: String): String {
         var current: Any = json
         val keys = path.split('.').filter { it.isNotEmpty() }
+        //println("Keys: $keys")
 
         for (key in keys) {
+            //println("Current: $key")
             if (current is JSONObject) {
+                //println("current: $current")
                 current = if (key.endsWith("]")) {
                     val arrayKey = key.substringBefore('[')
                     val index = key.substringAfter('[').substringBefore(']').toInt()

@@ -23,4 +23,4 @@ fun loadLanguagesFromFile(filePath: String): List<Language> {
     val jsonContent = inputStream.bufferedReader().use { it.readText() }
     val languageList = Gson().fromJson<LanguageList>(jsonContent, object : TypeToken<LanguageList>() {}.type)
     return languageList.languages
-}git
+}

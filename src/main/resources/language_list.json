@@ -6,107 +6,107 @@
     },
     {
       "code": "fr",
-      "name": "French"
+      "name": "Fran\u00e7ais"
     },
     {
       "code": "de",
-      "name": "German"
+      "name": "Deutsch"
     },
     {
       "code": "it",
-      "name": "Italian"
+      "name": "Italiano"
     },
     {
       "code": "es",
-      "name": "Spanish"
+      "name": "Espa\u00f1ol"
     },
     {
       "code": "pt",
-      "name": "Portuguese"
+      "name": "Portugu\u00eas"
     },
     {
       "code": "nl",
-      "name": "Dutch"
+      "name": "Nederlands"
     },
     {
       "code": "pl",
-      "name": "Polish"
+      "name": "Polski"
     },
     {
       "code": "ru",
-      "name": "Russian"
+      "name": "\u0420\u0443\u0441\u0441\u043a\u0438\u0439"
     },
     {
       "code": "ja",
-      "name": "Japanese"
+      "name": "\u65e5\u672c\u8a9e"
     },
     {
       "code": "zh",
-      "name": "Chinese"
+      "name": "\u4e2d\u6587"
     },
     {
       "code": "ko",
-      "name": "Korean"
+      "name": "\ud55c\uad6d\uc5b4"
     },
     {
       "code": "ar",
-      "name": "Arabic"
+      "name": "\u0627\u0644\u0639\u0631\u0628\u064a\u0629"
     },
     {
       "code": "tr",
-      "name": "Turkish"
+      "name": "T\u00fcrk\u00e7e"
     },
     {
       "code": "vi",
-      "name": "Vietnamese"
+      "name": "Ti\u1ebfng Vi\u1ec7t"
     },
     {
       "code": "th",
-      "name": "Thai"
+      "name": "\u0e44\u0e17\u0e22"
     },
     {
       "code": "id",
-      "name": "Indonesian"
+      "name": "Bahasa Indonesia"
     },
     {
       "code": "cs",
-      "name": "Czech"
+      "name": "\u010ce\u0161tina"
     },
     {
       "code": "da",
-      "name": "Danish"
+      "name": "Dansk"
     },
     {
       "code": "fi",
-      "name": "Finnish"
+      "name": "Suomi"
     },
     {
       "code": "el",
-      "name": "Greek"
+      "name": "\u0395\u03bb\u03bb\u03b7\u03bd\u03b9\u03ba\u03ac"
     },
     {
       "code": "sv",
-      "name": "Swedish"
+      "name": "Svenska"
     },
     {
       "code": "no",
-      "name": "Norwegian"
+      "name": "Norsk"
     },
     {
       "code": "hu",
-      "name": "Hungarian"
+      "name": "Magyar"
     },
     {
       "code": "he",
-      "name": "Hebrew"
+      "name": "\u05e2\u05d1\u05e8\u05d9\u05ea"
     },
     {
       "code": "hi",
-      "name": "Hindi"
+      "name": "\u0939\u093f\u0928\u094d\u0926\u0940"
     },
     {
       "code": "ms",
-      "name": "Malay"
+      "name": "Bahasa Melayu"
     },
     {
       "code": "tl",
@@ -114,75 +114,75 @@
     },
     {
       "code": "bg",
-      "name": "Bulgarian"
+      "name": "\u0411\u044a\u043b\u0433\u0430\u0440\u0441\u043a\u0438"
     },
     {
       "code": "ro",
-      "name": "Romanian"
+      "name": "Rom\u00e2n\u0103"
     },
     {
       "code": "uk",
-      "name": "Ukrainian"
+      "name": "\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430"
     },
     {
       "code": "hr",
-      "name": "Croatian"
+      "name": "Hrvatski"
     },
     {
       "code": "sk",
-      "name": "Slovak"
+      "name": "Sloven\u010dina"
     },
     {
       "code": "sl",
-      "name": "Slovenian"
+      "name": "Sloven\u0161\u010dina"
     },
     {
       "code": "lt",
-      "name": "Lithuanian"
+      "name": "Lietuvi\u0173"
     },
     {
       "code": "lv",
-      "name": "Latvian"
+      "name": "Latvie\u0161u"
     },
     {
       "code": "et",
-      "name": "Estonian"
+      "name": "Eesti"
     },
     {
       "code": "sr",
-      "name": "Serbian"
+      "name": "\u0421\u0440\u043f\u0441\u043a\u0438"
     },
     {
       "code": "mk",
-      "name": "Macedonian"
+      "name": "\u041c\u0430\u043a\u0435\u0434\u043e\u043d\u0441\u043a\u0438"
     },
     {
       "code": "is",
-      "name": "Icelandic"
+      "name": "\u00cdslenska"
     },
     {
       "code": "mt",
-      "name": "Maltese"
+      "name": "Malti"
     },
     {
       "code": "ga",
-      "name": "Irish"
+      "name": "Gaeilge"
     },
     {
       "code": "cy",
-      "name": "Welsh"
+      "name": "Cymraeg"
     },
     {
       "code": "sq",
-      "name": "Albanian"
+      "name": "Shqip"
     },
     {
       "code": "bs",
-      "name": "Bosnian"
+      "name": "Bosanski"
     },
     {
       "code": "sw",
-      "name": "Swahili"
+      "name": "Kiswahili"
     }
   ]
 }
