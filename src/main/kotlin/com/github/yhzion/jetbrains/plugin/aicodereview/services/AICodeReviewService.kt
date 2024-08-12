@@ -28,10 +28,10 @@ class AICodeReviewService(private val project: Project) {
         .addInterceptor { chain ->
             val request = chain.request()
             val response = chain.proceed(request)
-            println("HTTP ${request.method} ${request.url}")
-            println("Request headers: ${request.headers}")
-            println("Response code: ${response.code}")
-            println("Response headers: ${response.headers}")
+//            println("HTTP ${request.method} ${request.url}")
+//            println("Request headers: ${request.headers}")
+//            println("Response code: ${response.code}")
+//            println("Response headers: ${response.headers}")
             response
         }
         .build()
@@ -134,7 +134,7 @@ class AICodeReviewService(private val project: Project) {
     }
 
     private fun createRequestBody(prompt: String, fullContent: String, changedContent: String): RequestBody {
-        println("Prompt '$prompt'")
+//        println("Prompt '$prompt'")
         val json = JSONObject().apply {
             put("model", settings.MODEL)
             put("stream", true)
