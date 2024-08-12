@@ -1,4 +1,4 @@
-package com.github.yhzion.jetbrains.plugin.deltareview
+package com.github.yhzion.jetbrains.plugin.aicodereview
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.PersistentStateComponent
@@ -7,11 +7,11 @@ import com.intellij.openapi.components.State
 import com.intellij.openapi.components.Storage
 import com.intellij.openapi.components.service
 import com.intellij.util.xmlb.XmlSerializerUtil
-import com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable
+import com.github.yhzion.jetbrains.plugin.aicodereview.settings.AICodeReviewSettingsConfigurable
 
 @Service
-@State(name = "DeltaReviewSettings", storages = [Storage("DeltaReviewPluginSettings.xml")])
-class DeltaReviewSettings : PersistentStateComponent<DeltaReviewSettings> {
+@State(name = "AICodeReviewSettings", storages = [Storage("AICodeReviewPluginSettings.xml")])
+class AICodeReviewSettings : PersistentStateComponent<AICodeReviewSettings> {
     var OLLAMA_ENDPOINT = "http://localhost:11434/api/chat"
     var CLAUDE_ENDPOINT = "https://api.anthropic.com/v1/messages"
     var GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1/models/{MODEL}:generateContent?key={API_KEY}"
@@ -71,16 +71,16 @@ class DeltaReviewSettings : PersistentStateComponent<DeltaReviewSettings> {
 
     override fun getState() = this
 
-    override fun loadState(state: DeltaReviewSettings) {
+    override fun loadState(state: AICodeReviewSettings) {
         XmlSerializerUtil.copyBean(state, this)
     }
 
     fun notifySettingsChanged() {
-        ApplicationManager.getApplication().messageBus.syncPublisher(DeltaReviewSettingsConfigurable.SETTINGS_CHANGED_TOPIC).settingsChanged(this)
+        ApplicationManager.getApplication().messageBus.syncPublisher(AICodeReviewSettingsConfigurable.SETTINGS_CHANGED_TOPIC).settingsChanged(this)
     }
 
     companion object {
-        val instance: DeltaReviewSettings
+        val instance: AICodeReviewSettings
             get() = service()
     }
 }

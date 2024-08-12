@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.github.yhzion.jetbrains.plugin.deltareview</id>
+    <id>com.github.yhzion.jetbrains.plugin.aicodereview</id>
     <name>On-Device AI Code Review</name>
     <vendor>JeonYoungHo</vendor>
     <description>OnDeviceReviewer: AI-Powered Code Reviews Right on Your Device
@@ -57,32 +57,32 @@
     <depends>com.intellij.modules.platform</depends>
     <depends config-file="withMarkdown.xml">org.intellij.plugins.markdown</depends>
 
-    <resource-bundle>messages.DeltaReviewBundle</resource-bundle>
+    <resource-bundle>messages.AICodeReviewBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-                factoryClass="com.github.yhzion.jetbrains.plugin.deltareview.toolWindow.DeltaReviewToolWindowFactory"
+                factoryClass="com.github.yhzion.jetbrains.plugin.aicodereview.toolWindow.AICodeReviewToolWindowFactory"
                 id="AI Code Review"
                 anchor="right"
                 icon="AllIcons.Toolwindows.Documentation"
         />
 
-        <applicationService serviceImplementation="com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings"/>
+        <applicationService serviceImplementation="com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewSettings"/>
 
         <applicationConfigurable
-                instance="com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable"
-                id="com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable"
-                displayName="Delta Code Settings"/>
+                instance="com.github.yhzion.jetbrains.plugin.aicodereview.settings.AICodeReviewSettingsConfigurable"
+                id="com.github.yhzion.jetbrains.plugin.aicodereview.settings.AICodeReviewSettingsConfigurable"
+                displayName="AI Code Review"/>
     </extensions>
 
     <applicationListeners>
-        <listener class="com.github.yhzion.jetbrains.plugin.deltareview.listeners.ApplicationActivationListener"
+        <listener class="com.github.yhzion.jetbrains.plugin.aicodereview.listeners.ApplicationActivationListener"
                   topic="com.intellij.openapi.application.ApplicationActivationListener"/>
     </applicationListeners>
 
     <actions>
-        <action id="DeltaReview.RunReview"
-                class="com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewAction"
+        <action id="AICodeReview.RunReview"
+                class="com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewAction"
                 text="Run AI Code Review"
                 description="Run AI-powered code review">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
@@ -92,7 +92,7 @@
 
     <projectListeners>
         <!-- 파일 변경 시 실행되는 리스너 등록 -->
-        <listener class="com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewFileListener"
+        <listener class="com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewFileListener"
                   topic="com.intellij.openapi.vfs.VirtualFileListener"/>
     </projectListeners>
 </idea-plugin>

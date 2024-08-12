@@ -1,6 +1,6 @@
-package com.github.yhzion.jetbrains.plugin.deltareview.services
+package com.github.yhzion.jetbrains.plugin.aicodereview.services
 
-import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
+import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewSettings
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.Change
 import com.intellij.openapi.vcs.changes.ChangeListManager
@@ -17,9 +17,9 @@ import org.json.JSONObject
 import org.json.JSONArray
 import java.util.concurrent.TimeUnit
 
-class DeltaReviewService(private val project: Project) {
+class AICodeReviewService(private val project: Project) {
 
-    private val settings = DeltaReviewSettings.instance
+    private val settings = AICodeReviewSettings.instance
     private val client = OkHttpClient.Builder()
         .connectTimeout(300, TimeUnit.SECONDS)
         .writeTimeout(300, TimeUnit.SECONDS)

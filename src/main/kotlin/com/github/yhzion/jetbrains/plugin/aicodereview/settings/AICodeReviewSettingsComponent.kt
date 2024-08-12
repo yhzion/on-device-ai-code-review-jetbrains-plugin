@@ -1,17 +1,16 @@
-package com.github.yhzion.jetbrains.plugin.deltareview.settings
+package com.github.yhzion.jetbrains.plugin.aicodereview.settings
 
-import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle
-import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
+import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewBundle
+import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewSettings
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.FormBuilder
 import javax.swing.*
 import java.awt.ComponentOrientation
-import java.awt.event.ActionEvent
 import java.awt.event.ItemEvent
 
-class DeltaReviewSettingsComponent {
+class AICodeReviewSettingsComponent {
     private val ollamaEndpointField = JBTextField()
     private val claudeApiKeyField = JPasswordField()
     private val geminiApiKeyField = JPasswordField()
@@ -28,12 +27,12 @@ class DeltaReviewSettingsComponent {
     }
     private val promptScrollPane = JBScrollPane(promptField)
 
-    private val claudeApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.claudeApiKey"))
-    private val geminiApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.geminiApiKey"))
-    private val groqApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.groqApiKey"))
-    private val openAiApiKeyLabel = JLabel(DeltaReviewBundle.message("plugin.settings.openAiApiKey"))
-    private val ollamaEndpointLabel = JLabel(DeltaReviewBundle.message("plugin.settings.ollamaEndpoint"))
-    private val anthropicVersionLabel = JLabel(DeltaReviewBundle.message("plugin.settings.anthropicVersion"))
+    private val claudeApiKeyLabel = JLabel(AICodeReviewBundle.message("plugin.settings.claudeApiKey"))
+    private val geminiApiKeyLabel = JLabel(AICodeReviewBundle.message("plugin.settings.geminiApiKey"))
+    private val groqApiKeyLabel = JLabel(AICodeReviewBundle.message("plugin.settings.groqApiKey"))
+    private val openAiApiKeyLabel = JLabel(AICodeReviewBundle.message("plugin.settings.openAiApiKey"))
+    private val ollamaEndpointLabel = JLabel(AICodeReviewBundle.message("plugin.settings.ollamaEndpoint"))
+    private val anthropicVersionLabel = JLabel(AICodeReviewBundle.message("plugin.settings.anthropicVersion"))
 
     private val claudePanel = createPasswordFieldWithToggle(claudeApiKeyField)
     private val geminiPanel = createPasswordFieldWithToggle(geminiApiKeyField)
@@ -58,10 +57,10 @@ class DeltaReviewSettingsComponent {
         }
 
         panel = FormBuilder.createFormBuilder()
-            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.maxTokens"), maxTokensField)
-            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.fileExtensions"), fileExtensionsField)
-            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.serviceProvider"), serviceProviderComboBox)
-            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.model"), modelField)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.maxTokens"), maxTokensField)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.fileExtensions"), fileExtensionsField)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.serviceProvider"), serviceProviderComboBox)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.model"), modelField)
             .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)
             .addLabeledComponent(claudeApiKeyLabel, claudePanel)
             .addLabeledComponent(geminiApiKeyLabel, geminiPanel)
@@ -69,11 +68,11 @@ class DeltaReviewSettingsComponent {
             .addLabeledComponent(openAiApiKeyLabel, openAiPanel)
             .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
             .addLabeledComponent(
-                DeltaReviewBundle.message("plugin.settings.preferredLanguage"),
+                AICodeReviewBundle.message("plugin.settings.preferredLanguage"),
                 preferredLanguageComboBox
             )
-            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.responsePath"), responsePathField)
-            .addLabeledComponent(DeltaReviewBundle.message("plugin.settings.prompt"), promptScrollPane)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.responsePath"), responsePathField)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.prompt"), promptScrollPane)
             .addComponentFillVertically(JPanel(), 0)
             .panel
 
@@ -87,27 +86,27 @@ class DeltaReviewSettingsComponent {
             "claude" -> {
                 modelField.text = "claude-3-5-sonnet-20240620"
                 anthropicVersionField.text = "2023-06-01"
-                responsePathField.text = DeltaReviewSettings.instance.CLAUDE_RESPONSE_PATH
+                responsePathField.text = AICodeReviewSettings.instance.CLAUDE_RESPONSE_PATH
             }
 
             "openai" -> {
                 modelField.text = "gpt-4o-mini"
-                responsePathField.text = DeltaReviewSettings.instance.OPENAI_RESPONSE_PATH
+                responsePathField.text = AICodeReviewSettings.instance.OPENAI_RESPONSE_PATH
             }
 
             "gemini" -> {
                 modelField.text = "gemini-1.5-flash"
-                responsePathField.text = DeltaReviewSettings.instance.GEMINI_RESPONSE_PATH
+                responsePathField.text = AICodeReviewSettings.instance.GEMINI_RESPONSE_PATH
             }
 
             "groq" -> {
                 modelField.text = "llama-3.1-70b-versatile"
-                responsePathField.text = DeltaReviewSettings.instance.GROQ_RESPONSE_PATH
+                responsePathField.text = AICodeReviewSettings.instance.GROQ_RESPONSE_PATH
             }
 
             "ollama" -> {
                 modelField.text = "mistral-nemo"
-                responsePathField.text = DeltaReviewSettings.instance.OLLAMA_RESPONSE_PATH
+                responsePathField.text = AICodeReviewSettings.instance.OLLAMA_RESPONSE_PATH
             }
         }
     }
@@ -140,14 +139,14 @@ class DeltaReviewSettingsComponent {
     }
 
     private fun createPasswordFieldWithToggle(passwordField: JPasswordField): JPanel {
-        val showHideButton = JButton(DeltaReviewBundle.message("plugin.settings.show")).apply {
+        val showHideButton = JButton(AICodeReviewBundle.message("plugin.settings.show")).apply {
             addActionListener {
                 if (passwordField.echoCharIsSet()) {
                     passwordField.echoChar = '\u0000'
-                    text = DeltaReviewBundle.message("plugin.settings.hide")
+                    text = AICodeReviewBundle.message("plugin.settings.hide")
                 } else {
                     passwordField.echoChar = '*'
-                    text = DeltaReviewBundle.message("plugin.settings.show")
+                    text = AICodeReviewBundle.message("plugin.settings.show")
                 }
             }
         }
@@ -172,7 +171,7 @@ class DeltaReviewSettingsComponent {
         component.putClientProperty("html", "<div dir=\"$dirAttribute\"></div>")
     }
 
-    fun apply(settings: DeltaReviewSettings) {
+    fun apply(settings: AICodeReviewSettings) {
         settings.OLLAMA_ENDPOINT = ollamaEndpointField.text
         settings.CLAUDE_API_KEY = String(claudeApiKeyField.password)
         settings.GEMINI_API_KEY = String(geminiApiKeyField.password)
@@ -196,7 +195,7 @@ class DeltaReviewSettingsComponent {
         }
     }
 
-    fun reset(settings: DeltaReviewSettings) {
+    fun reset(settings: AICodeReviewSettings) {
         ollamaEndpointField.text = settings.OLLAMA_ENDPOINT
         claudeApiKeyField.text = settings.CLAUDE_API_KEY
         geminiApiKeyField.text = settings.GEMINI_API_KEY
@@ -220,7 +219,7 @@ class DeltaReviewSettingsComponent {
         updateFieldVisibility()
     }
 
-    fun isModified(settings: DeltaReviewSettings): Boolean {
+    fun isModified(settings: AICodeReviewSettings): Boolean {
         val isResponsePathModified = when (settings.SERVICE_PROVIDER) {
             "ollama" -> responsePathField.text != settings.OLLAMA_RESPONSE_PATH
             "claude" -> responsePathField.text != settings.CLAUDE_RESPONSE_PATH

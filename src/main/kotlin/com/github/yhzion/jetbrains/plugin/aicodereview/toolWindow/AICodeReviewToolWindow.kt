@@ -1,10 +1,10 @@
-package com.github.yhzion.jetbrains.plugin.deltareview.toolWindow
+package com.github.yhzion.jetbrains.plugin.aicodereview.toolWindow
 
-import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewBundle
-import com.github.yhzion.jetbrains.plugin.deltareview.DeltaReviewSettings
-import com.github.yhzion.jetbrains.plugin.deltareview.services.DeltaReviewService
-import com.github.yhzion.jetbrains.plugin.deltareview.services.FileReviewResult
-import com.github.yhzion.jetbrains.plugin.deltareview.settings.DeltaReviewSettingsConfigurable
+import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewBundle
+import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewSettings
+import com.github.yhzion.jetbrains.plugin.aicodereview.services.AICodeReviewService
+import com.github.yhzion.jetbrains.plugin.aicodereview.services.FileReviewResult
+import com.github.yhzion.jetbrains.plugin.aicodereview.settings.AICodeReviewSettingsConfigurable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
@@ -18,11 +18,11 @@ import com.intellij.ui.JBColor
 import java.awt.*
 import javax.swing.*
 
-class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow) {
+class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindow) {
     private val mainPanel: JPanel = JPanel(BorderLayout())
     private val markdownPanel: MarkdownHtmlPanel = MarkdownJCEFHtmlPanel(project, null)
-    private val runReviewButton: JButton = JButton(DeltaReviewBundle.message("plugin.review.runReviewButton"))
-    private val cancelButton: JButton = JButton(DeltaReviewBundle.message("plugin.review.cancelButton"))
+    private val runReviewButton: JButton = JButton(AICodeReviewBundle.message("plugin.review.runReviewButton"))
+    private val cancelButton: JButton = JButton(AICodeReviewBundle.message("plugin.review.cancelButton"))
     private val progressBar: JProgressBar = JProgressBar()
     private val providerLabel: JLabel = JLabel()
     private val modelLabel: JLabel = JLabel()
@@ -48,7 +48,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
         }
 
         val tabbedPane = JTabbedPane().apply {
-            addTab(DeltaReviewBundle.message("plugin.review.informationTab"), infoPanel)
+            addTab(AICodeReviewBundle.message("plugin.review.informationTab"), infoPanel)
         }
 
         progressBar.isIndeterminate = true
@@ -91,7 +91,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
         cancelButton.addActionListener {
             scope.coroutineContext.cancelChildren()
-            appendReviewResult(DeltaReviewBundle.message("plugin.review.cancelled") + "\n")
+            appendReviewResult(AICodeReviewBundle.message("plugin.review.cancelled") + "\n")
             runReviewButton.isEnabled = true
             cancelButton.isEnabled = false
             progressBar.isVisible = false
@@ -99,35 +99,35 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
         // 설정 변경 리스너 등록
         ApplicationManager.getApplication().messageBus.connect()
-            .subscribe(DeltaReviewSettingsConfigurable.SETTINGS_CHANGED_TOPIC, object : DeltaReviewSettingsConfigurable.SettingsChangedListener {
-                override fun settingsChanged(settings: DeltaReviewSettings) {
+            .subscribe(AICodeReviewSettingsConfigurable.SETTINGS_CHANGED_TOPIC, object : AICodeReviewSettingsConfigurable.SettingsChangedListener {
+                override fun settingsChanged(settings: AICodeReviewSettings) {
                     updateInfoLabels()
                 }
             })
     }
 
     private fun updateInfoLabels() {
-        val settings = DeltaReviewSettings.instance
-        providerLabel.text = DeltaReviewBundle.message("plugin.review.serviceProvider") + ": ${settings.SERVICE_PROVIDER}"
-        modelLabel.text = DeltaReviewBundle.message("plugin.review.model") + ": ${settings.MODEL}"
+        val settings = AICodeReviewSettings.instance
+        providerLabel.text = AICodeReviewBundle.message("plugin.review.serviceProvider") + ": ${settings.SERVICE_PROVIDER}"
+        modelLabel.text = AICodeReviewBundle.message("plugin.review.model") + ": ${settings.MODEL}"
     }
 
     private fun runCodeReview() {
         scope.launch {
             try {
-                val reviewService = DeltaReviewService(project)
+                val reviewService = AICodeReviewService(project)
                 val results = reviewService.reviewChangedFiles { progress ->
                     withContext(Dispatchers.Main) {
-                        appendReviewResult(DeltaReviewBundle.message("plugin.review.reviewingFile", progress))
+                        appendReviewResult(AICodeReviewBundle.message("plugin.review.reviewingFile", progress))
                     }
                 }
                 withContext(Dispatchers.Main) {
-                    appendReviewResult(DeltaReviewBundle.message("plugin.review.results") + ":\n")
+                    appendReviewResult(AICodeReviewBundle.message("plugin.review.results") + ":\n")
                     appendReviewResult(formatResults(results))
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    appendReviewResult(DeltaReviewBundle.message("plugin.review.errorOccurred", e.message ?: "") + "\n")
+                    appendReviewResult(AICodeReviewBundle.message("plugin.review.errorOccurred", e.message ?: "") + "\n")
                 }
             } finally {
                 withContext(Dispatchers.Main) {
@@ -141,7 +141,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
 
     private fun formatResults(results: List<FileReviewResult>): String {
         return results.joinToString("\n\n") { result ->
-            DeltaReviewBundle.message("plugin.review.file") + ": ${result.fileName}\n${result.review}"
+            AICodeReviewBundle.message("plugin.review.file") + ": ${result.fileName}\n${result.review}"
         }
     }
 
@@ -156,7 +156,7 @@ class DeltaReviewToolWindow(private val project: Project, toolWindow: ToolWindow
     }
 
     private fun applyTextDirection(html: String): String {
-        val languageCode = when (DeltaReviewSettings.instance.PREFERRED_LANGUAGE) {
+        val languageCode = when (AICodeReviewSettings.instance.PREFERRED_LANGUAGE) {
             "Arabic" -> "ar"
             "Hebrew" -> "he"
             "Persian" -> "fa"

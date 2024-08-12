@@ -1,13 +1,13 @@
-package com.github.yhzion.jetbrains.plugin.deltareview
+package com.github.yhzion.jetbrains.plugin.aicodereview
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 
 @NonNls
-private const val BUNDLE = "messages.DeltaReviewBundle"
+private const val BUNDLE = "messages.AICodeReviewBundle"
 
-object DeltaReviewBundle : DynamicBundle(BUNDLE) {
+object AICodeReviewBundle : DynamicBundle(BUNDLE) {
 
     @JvmStatic
     fun message(@PropertyKey(resourceBundle = BUNDLE) key: String, vararg params: Any) =

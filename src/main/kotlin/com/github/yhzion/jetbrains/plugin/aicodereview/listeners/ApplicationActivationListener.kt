@@ -1,4 +1,4 @@
-package com.github.yhzion.jetbrains.plugin.deltareview.listeners
+package com.github.yhzion.jetbrains.plugin.aicodereview.listeners
 
 import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.diagnostic.thisLogger

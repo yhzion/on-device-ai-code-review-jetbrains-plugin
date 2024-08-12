@@ -1,4 +1,4 @@
-package com.github.yhzion.jetbrains.plugin.deltareview.settings
+package com.github.yhzion.jetbrains.plugin.aicodereview.settings
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -10,7 +10,7 @@ data class Language(val code: String, val name: String)
 data class LanguageList(val languages: List<Language>)
 
 fun loadLanguagesFromFile(filePath: String): List<Language> {
-    val pluginId = PluginId.getId("com.github.yhzion.jetbrains.plugin.deltareview")
+    val pluginId = PluginId.getId("com.github.yhzion.jetbrains.plugin.aicodereview")
     val pluginDescriptor = PluginManagerCore.getPlugin(pluginId)
         ?: throw IllegalStateException("Plugin descriptor not found")
 
