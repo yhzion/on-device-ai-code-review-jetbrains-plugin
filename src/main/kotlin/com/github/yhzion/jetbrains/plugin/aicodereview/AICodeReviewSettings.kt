@@ -23,7 +23,7 @@ class AICodeReviewSettings : PersistentStateComponent<AICodeReviewSettings> {
     var GROQ_API_KEY = ""
     var OPENAI_API_KEY = ""
 
-    var MAX_TOKENS = 4096
+    var MAX_TOKENS = 8192
     var FILE_EXTENSIONS = ".json$|.xml$|.ts$|.js$|.html$|.vue$|.sh$|.tsx$|.jsx$|.py$|.css$|.kt$"
 
     var OLLAMA_RESPONSE_PATH = ".message.content"

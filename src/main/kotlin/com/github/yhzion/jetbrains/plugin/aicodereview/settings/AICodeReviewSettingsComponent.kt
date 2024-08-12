@@ -48,9 +48,6 @@ class AICodeReviewSettingsComponent {
     private val languageNames = languages.map { it.name }
     private val preferredLanguageComboBox = ComboBox(languageNames.toTypedArray())
 
-    private val useStreamingCheckBox = JCheckBox(AICodeReviewBundle.message("plugin.settings.useStreaming"))
-    private val streamingChunkSizeField = JBTextField()
-
     init {
         serviceProviderComboBox.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
@@ -64,12 +61,12 @@ class AICodeReviewSettingsComponent {
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.fileExtensions"), fileExtensionsField)
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.serviceProvider"), serviceProviderComboBox)
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.model"), modelField)
-            .addLabeledComponent(ollamaEndpointLabel, ollamaEndpointField)
-            .addLabeledComponent(claudeApiKeyLabel, claudePanel)
-            .addLabeledComponent(geminiApiKeyLabel, geminiPanel)
-            .addLabeledComponent(groqApiKeyLabel, groqPanel)
-            .addLabeledComponent(openAiApiKeyLabel, openAiPanel)
-            .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.ollamaEndpoint"), ollamaEndpointField)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.claudeApiKey"), claudePanel)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.geminiApiKey"), geminiPanel)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.groqApiKey"), groqPanel)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.openAiApiKey"), openAiPanel)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.anthropicVersion"), anthropicVersionField)
             .addLabeledComponent(
                 AICodeReviewBundle.message("plugin.settings.preferredLanguage"),
                 preferredLanguageComboBox
@@ -77,10 +74,8 @@ class AICodeReviewSettingsComponent {
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.responsePath"), responsePathField)
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.prompt"), promptScrollPane)
             .addComponentFillVertically(JPanel(), 0)
-            .addComponent(useStreamingCheckBox)
-            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.streamingChunkSize"), streamingChunkSizeField)
-            .addComponentFillVertically(JPanel(), 0)
             .panel
+
 
         updateFieldVisibility()
     }
@@ -142,8 +137,6 @@ class AICodeReviewSettingsComponent {
 
         anthropicVersionLabel.isVisible = selectedProvider == "claude"
         anthropicVersionField.isVisible = selectedProvider == "claude"
-
-        streamingChunkSizeField.isVisible = useStreamingCheckBox.isSelected
     }
 
     private fun createPasswordFieldWithToggle(passwordField: JPasswordField): JPanel {
@@ -192,8 +185,8 @@ class AICodeReviewSettingsComponent {
         settings.ANTHROPIC_VERSION = anthropicVersionField.text
         settings.PROMPT = promptField.text
         settings.PREFERRED_LANGUAGE = preferredLanguageComboBox.selectedItem as String
-        settings.USE_STREAMING = useStreamingCheckBox.isSelected
-        settings.STREAMING_CHUNK_SIZE = streamingChunkSizeField.text.toIntOrNull() ?: 8192
+        settings.USE_STREAMING = true
+        settings.STREAMING_CHUNK_SIZE = 8192
 
 
         // 서비스 제공자별 RESPONSE_PATH 설정 적용
@@ -219,8 +212,7 @@ class AICodeReviewSettingsComponent {
         anthropicVersionField.text = settings.ANTHROPIC_VERSION
         promptField.text = settings.PROMPT
         preferredLanguageComboBox.selectedItem = settings.PREFERRED_LANGUAGE
-        useStreamingCheckBox.isSelected = settings.USE_STREAMING
-        streamingChunkSizeField.text = settings.STREAMING_CHUNK_SIZE.toString()
+
 
         // 서비스 제공자별 RESPONSE_PATH 설정 복구
         when (settings.SERVICE_PROVIDER) {
@@ -257,8 +249,6 @@ class AICodeReviewSettingsComponent {
                 anthropicVersionField.text != settings.ANTHROPIC_VERSION ||
                 promptField.text != settings.PROMPT ||
                 preferredLanguageComboBox.selectedItem != settings.PREFERRED_LANGUAGE ||
-                useStreamingCheckBox.isSelected != settings.USE_STREAMING ||
-                streamingChunkSizeField.text.toIntOrNull() != settings.STREAMING_CHUNK_SIZE ||
                 isResponsePathModified
     }
 
