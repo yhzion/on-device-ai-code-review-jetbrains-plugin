@@ -10,7 +10,7 @@ data class Language(val code: String, val name: String)
 data class LanguageList(val languages: List<Language>)
 
 fun loadLanguagesFromFile(filePath: String): List<Language> {
-    val pluginId = PluginId.getId("com.github.yhzion.jetbrains.plugin.aicodereview")
+    val pluginId = PluginId.getId("com.github.yhzion.jetbrains.plugin.deltareview")
     val pluginDescriptor = PluginManagerCore.getPlugin(pluginId)
         ?: throw IllegalStateException("Plugin descriptor not found")
 
@@ -23,4 +23,4 @@ fun loadLanguagesFromFile(filePath: String): List<Language> {
     val jsonContent = inputStream.bufferedReader().use { it.readText() }
     val languageList = Gson().fromJson<LanguageList>(jsonContent, object : TypeToken<LanguageList>() {}.type)
     return languageList.languages
-}
+}git
