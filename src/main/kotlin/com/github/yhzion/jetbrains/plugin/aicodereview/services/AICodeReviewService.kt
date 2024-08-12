@@ -15,6 +15,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.MediaType.Companion.toMediaType
 import org.json.JSONObject
 import org.json.JSONArray
+import okio.Buffer
 import java.util.concurrent.TimeUnit
 
 class AICodeReviewService(private val project: Project) {
@@ -37,23 +38,31 @@ class AICodeReviewService(private val project: Project) {
 
     suspend fun reviewChangedFiles(progressCallback: suspend (String) -> Unit): List<FileReviewResult> = withContext(Dispatchers.IO) {
         val changedFiles = getChangedFiles()
-        progressCallback("Found ${changedFiles.size} changed files")
+        progressCallback("Found ${changedFiles.size} changed files\n")
+        // Append changed filename list
+        // ex) Found 3 changed files
+        //    - file1
+        //    - file2
+        //    - file3
+        changedFiles.forEach { file ->
+            progressCallback("- ${file.name}\n")
+        }
+
+        progressCallback("\n\n\n")
 
         changedFiles.mapNotNull { file ->
-            progressCallback(file.name)
             val fullContent = file.contentsToByteArray().toString(Charsets.UTF_8)
             val changedContent = getChangedContent(file)
             if (changedContent.isNotEmpty()) {
-                progressCallback(file.name)
-                val review = requestReview(file.name, fullContent, changedContent)
-                progressCallback("file.name")
-                FileReviewResult(file.name, review)
+                val review = requestReview(file.name, fullContent, changedContent, progressCallback)
+                FileReviewResult(file.name, "\n\n\n" + review)
             } else {
-                progressCallback(file.name)
+                progressCallback("# No significant changes in ${file.name}\n")
                 null
             }
         }
     }
+
 
     private fun getChangedFiles(): List<VirtualFile> {
         val changeListManager = ChangeListManager.getInstance(project)
@@ -74,34 +83,14 @@ class AICodeReviewService(private val project: Project) {
         }
     }
 
-    private suspend fun requestReview(fileName: String, fullContent: String, changedContent: String): String = withContext(Dispatchers.IO) {
-        val dynamicPrompt = settings.PROMPT.replace("{PREFERRED_LANGUAGE}", settings.PREFERRED_LANGUAGE)
-        println("Dynamic prompt: $dynamicPrompt")
+    private suspend fun requestReview(fileName: String, fullContent: String, changedContent: String, progressCallback: suspend (String) -> Unit): String = withContext(Dispatchers.IO) {
+        val PROMPT_START = "You must response in {PREFERRED_LANGUAGE}: ["
+        val PROMPT_END = "]"
+        val dynamicPromptContent = settings.PROMPT
+        val dynamicPrompt = "$PROMPT_START\n$dynamicPromptContent\n$PROMPT_END".replace("{PREFERRED_LANGUAGE}", settings.PREFERRED_LANGUAGE)
 
-        val requestBody = when (settings.SERVICE_PROVIDER) {
-            "gemini" -> createGeminiRequestBody(dynamicPrompt, fullContent, changedContent)
-            else -> createDefaultRequestBody(dynamicPrompt, fullContent, changedContent)
-        }
-
-        val endpoint = when (settings.SERVICE_PROVIDER) {
-            "ollama" -> settings.OLLAMA_ENDPOINT
-            "claude" -> settings.CLAUDE_ENDPOINT
-            "gemini" -> settings.GEMINI_ENDPOINT.replace("{MODEL}", settings.MODEL).replace("{API_KEY}", settings.GEMINI_API_KEY)
-            "groq" -> settings.GROQ_ENDPOINT
-            "openai" -> settings.OPENAI_ENDPOINT
-            else -> throw IllegalArgumentException("Unknown service provider: ${settings.SERVICE_PROVIDER}")
-        }
-
-        val responsePath = when (settings.SERVICE_PROVIDER) {
-            "ollama" -> settings.OLLAMA_RESPONSE_PATH
-            "claude" -> settings.CLAUDE_RESPONSE_PATH
-            "gemini" -> settings.GEMINI_RESPONSE_PATH
-            "groq" -> settings.GROQ_RESPONSE_PATH
-            "openai" -> settings.OPENAI_RESPONSE_PATH
-            else -> throw IllegalArgumentException("Unknown service provider: ${settings.SERVICE_PROVIDER}")
-        }
-
-        println(endpoint)
+        val requestBody = createRequestBody(dynamicPrompt, fullContent, changedContent)
+        val endpoint = getEndpointForServiceProvider(settings.SERVICE_PROVIDER)
 
         val request = Request.Builder()
             .url(endpoint)
@@ -109,53 +98,46 @@ class AICodeReviewService(private val project: Project) {
             .addHeader("Content-Type", "application/json")
             .apply {
                 when (settings.SERVICE_PROVIDER) {
-                    "claude" -> {
-                        addHeader("x-api-key", settings.CLAUDE_API_KEY)
-                        addHeader("anthropic-version", settings.ANTHROPIC_VERSION)
-                    }
+                    "claude" -> addHeader("x-api-key", settings.CLAUDE_API_KEY)
                     "openai", "groq" -> addHeader("Authorization", "Bearer ${settings.OPENAI_API_KEY}")
                 }
             }
             .build()
 
+        val result = StringBuilder()
+
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw Exception("API call failed: ${response.code}")
 
-            val responseBody = response.body?.string() ?: throw Exception("Empty response")
-            val jsonResponse = JSONObject(responseBody)
+            val bufferedSource = response.body?.source() ?: throw Exception("Empty response")
+            val buffer = Buffer()
 
-            // 전체 JSON 응답 로그
-            println("Full JSON response: $jsonResponse")
+            while (!bufferedSource.exhausted()) {
+                bufferedSource.read(buffer, settings.STREAMING_CHUNK_SIZE.toLong())
+                val chunk = buffer.readUtf8()
+                val jsonChunk = JSONObject(chunk)
 
-            // 추출할 경로 확인 로그
-            println("Response path: $responsePath")
+                // 서비스 프로바이더에 맞는 RESPONSE_PATH 사용
+                val responsePath = getResponsePathForServiceProvider(settings.SERVICE_PROVIDER)
+                val extractedContent = extractContentFromJson(jsonChunk, responsePath)
 
-            // 추출된 결과 로그
-            val extractedContent = extractContentFromJson(jsonResponse, responsePath)
-            println("Extracted content: $extractedContent")
+                // 실시간 업데이트
+                withContext(Dispatchers.Main) {
+                    progressCallback(extractedContent) // 이 함수는 UI를 업데이트하는 메서드입니다.
+                }
 
-            extractContentFromJson(jsonResponse, responsePath)
+                result.append(extractedContent)
+            }
         }
+
+        return@withContext result.toString()
     }
 
-    private fun createGeminiRequestBody(prompt: String, fullContent: String, changedContent: String): RequestBody {
-        val json = JSONObject().apply {
-            put("contents", JSONArray().put(JSONObject().apply {
-                put("parts", JSONArray().put(JSONObject().apply {
-                    put("text", "$prompt\n\nFull file content:\n$fullContent\n\nChanged content:\n$changedContent")
-                }))
-            }))
-            put("generationConfig", JSONObject().apply {
-                put("maxOutputTokens", settings.MAX_TOKENS)
-            })
-        }
-        return json.toString().toRequestBody("application/json".toMediaType())
-    }
-
-    private fun createDefaultRequestBody(prompt: String, fullContent: String, changedContent: String): RequestBody {
+    private fun createRequestBody(prompt: String, fullContent: String, changedContent: String): RequestBody {
+        println("Prompt '$prompt'")
         val json = JSONObject().apply {
             put("model", settings.MODEL)
-            put("stream", false)
+            put("stream", true)
             put("max_tokens", settings.MAX_TOKENS)
             put("messages", JSONArray().put(JSONObject().apply {
                 put("role", "user")
@@ -181,11 +163,31 @@ class AICodeReviewService(private val project: Project) {
             } else {
                 throw IllegalArgumentException("Unexpected JSON structure for path: $path")
             }
-            // 로그 추가
-            println("Current JSON node after processing key '$key': $current")
         }
 
         return current.toString()
+    }
+
+    private fun getResponsePathForServiceProvider(serviceProvider: String): String {
+        return when (serviceProvider) {
+            "ollama" -> settings.OLLAMA_RESPONSE_PATH
+            "claude" -> settings.CLAUDE_RESPONSE_PATH
+            "gemini" -> settings.GEMINI_RESPONSE_PATH
+            "groq" -> settings.GROQ_RESPONSE_PATH
+            "openai" -> settings.OPENAI_RESPONSE_PATH
+            else -> throw IllegalArgumentException("Unknown service provider: $serviceProvider")
+        }
+    }
+
+    private fun getEndpointForServiceProvider(serviceProvider: String): String {
+        return when (serviceProvider) {
+            "ollama" -> settings.OLLAMA_ENDPOINT
+            "claude" -> settings.CLAUDE_ENDPOINT
+            "gemini" -> settings.GEMINI_ENDPOINT.replace("{MODEL}", settings.MODEL).replace("{API_KEY}", settings.GEMINI_API_KEY)
+            "groq" -> settings.GROQ_ENDPOINT
+            "openai" -> settings.OPENAI_ENDPOINT
+            else -> throw IllegalArgumentException("Unknown service provider: $serviceProvider")
+        }
     }
 }
 

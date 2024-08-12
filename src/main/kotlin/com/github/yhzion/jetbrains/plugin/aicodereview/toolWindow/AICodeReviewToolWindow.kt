@@ -13,8 +13,8 @@ import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
 import org.intellij.plugins.markdown.ui.preview.jcef.MarkdownJCEFHtmlPanel
 import kotlinx.coroutines.*
-import org.intellij.plugins.markdown.ui.preview.MarkdownHtmlPanel
 import com.intellij.ui.JBColor
+import org.intellij.plugins.markdown.ui.preview.MarkdownHtmlPanel
 import java.awt.*
 import javax.swing.*
 
@@ -27,6 +27,7 @@ class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindo
     private val providerLabel: JLabel = JLabel()
     private val modelLabel: JLabel = JLabel()
     private val scope = CoroutineScope(Dispatchers.Default + Job())
+    private val contentBuilder = StringBuilder() // 실시간으로 데이터를 축적하기 위한 StringBuilder
 
     init {
         updateInfoLabels()
@@ -86,6 +87,7 @@ class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindo
             runReviewButton.isEnabled = false
             cancelButton.isEnabled = true
             progressBar.isVisible = true
+            contentBuilder.clear() // 시작할 때 기존 내용을 초기화
             runCodeReview()
         }
 
@@ -116,14 +118,10 @@ class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindo
         scope.launch {
             try {
                 val reviewService = AICodeReviewService(project)
-                val results = reviewService.reviewChangedFiles { progress ->
+                reviewService.reviewChangedFiles { progress ->
                     withContext(Dispatchers.Main) {
-                        appendReviewResult(AICodeReviewBundle.message("plugin.review.reviewingFile", progress))
+                        appendReviewResult(progress)
                     }
-                }
-                withContext(Dispatchers.Main) {
-                    appendReviewResult(AICodeReviewBundle.message("plugin.review.results") + ":\n")
-                    appendReviewResult(formatResults(results))
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -139,36 +137,12 @@ class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindo
         }
     }
 
-    private fun formatResults(results: List<FileReviewResult>): String {
-        return results.joinToString("\n\n") { result ->
-            AICodeReviewBundle.message("plugin.review.file") + ": ${result.fileName}\n${result.review}"
-        }
-    }
-
-    private fun appendReviewResult(text: String) {
-        val currentContent = getCurrentContent()
-        val markdownToHtml = markdownToHtml(text)
+    public fun appendReviewResult(text: String) {
+        contentBuilder.append(text) // 새로운 청크를 기존 텍스트에 추가
+        val htmlContent = markdownToHtml(contentBuilder.toString()) // 전체를 다시 HTML로 변환
 
         ApplicationManager.getApplication().invokeLater {
-            val newContent = currentContent + "\n" + applyTextDirection(markdownToHtml)
-            markdownPanel.setHtml(newContent, 0)
-        }
-    }
-
-    private fun applyTextDirection(html: String): String {
-        val languageCode = when (AICodeReviewSettings.instance.PREFERRED_LANGUAGE) {
-            "Arabic" -> "ar"
-            "Hebrew" -> "he"
-            "Persian" -> "fa"
-            "Urdu" -> "ur"
-            else -> "en"
-        }
-
-        val isRtl = listOf("ar", "he", "fa", "ur").contains(languageCode)
-        return if (isRtl) {
-            "<div dir=\"rtl\" style=\"text-align: right;\">$html</div>"
-        } else {
-            "<div dir=\"ltr\" style=\"text-align: left;\">$html</div>"
+            markdownPanel.setHtml(htmlContent, 0) // UI에 적용
         }
     }
 
@@ -178,16 +152,6 @@ class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindo
         val renderer = HtmlRenderer.builder(options).build()
         val document = parser.parse(markdown)
         return renderer.render(document)
-    }
-
-    fun setReviewResult(result: String) {
-        ApplicationManager.getApplication().invokeLater {
-            markdownPanel.setHtml(applyTextDirection(result), 0)
-        }
-    }
-
-    fun getCurrentContent(): String {
-        return markdownPanel.component.toolTipText ?: ""
     }
 
     fun getContent() = mainPanel

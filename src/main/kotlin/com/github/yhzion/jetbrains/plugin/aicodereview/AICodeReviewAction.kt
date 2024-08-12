@@ -22,7 +22,7 @@ class AICodeReviewAction : AnAction() {
                     toolWindow?.let {
                         val content = it.contentManager.getContent(0)
                         val reviewToolWindow = content?.component as? AICodeReviewToolWindow
-                        reviewToolWindow?.setReviewResult("$progress\n${reviewToolWindow.getCurrentContent()}")
+                        reviewToolWindow?.appendReviewResult(progress)
                     }
                 }
             }
@@ -32,7 +32,7 @@ class AICodeReviewAction : AnAction() {
                     it.show {
                         val content = it.contentManager.getContent(0)
                         val reviewToolWindow = content?.component as? AICodeReviewToolWindow
-                        reviewToolWindow?.setReviewResult(formatResults(results))
+                        reviewToolWindow?.appendReviewResult(formatResults(results))
                     }
                 }
             }
@@ -40,8 +40,9 @@ class AICodeReviewAction : AnAction() {
     }
 
     private fun formatResults(results: List<FileReviewResult>): String {
-        return results.joinToString("\n\n") { result ->
-            "File: ${result.fileName}\n${result.review}"
-        }
+//        return results.joinToString("\n\n") { result ->
+//            "File: ${result.fileName}\n${result.review}"
+//        }
+        return ""
     }
 }

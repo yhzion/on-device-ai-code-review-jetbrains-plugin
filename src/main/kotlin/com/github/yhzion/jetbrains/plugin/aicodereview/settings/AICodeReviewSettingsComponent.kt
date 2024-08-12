@@ -48,6 +48,9 @@ class AICodeReviewSettingsComponent {
     private val languageNames = languages.map { it.name }
     private val preferredLanguageComboBox = ComboBox(languageNames.toTypedArray())
 
+    private val useStreamingCheckBox = JCheckBox(AICodeReviewBundle.message("plugin.settings.useStreaming"))
+    private val streamingChunkSizeField = JBTextField()
+
     init {
         serviceProviderComboBox.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
@@ -73,6 +76,9 @@ class AICodeReviewSettingsComponent {
             )
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.responsePath"), responsePathField)
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.prompt"), promptScrollPane)
+            .addComponentFillVertically(JPanel(), 0)
+            .addComponent(useStreamingCheckBox)
+            .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.streamingChunkSize"), streamingChunkSizeField)
             .addComponentFillVertically(JPanel(), 0)
             .panel
 
@@ -136,6 +142,8 @@ class AICodeReviewSettingsComponent {
 
         anthropicVersionLabel.isVisible = selectedProvider == "claude"
         anthropicVersionField.isVisible = selectedProvider == "claude"
+
+        streamingChunkSizeField.isVisible = useStreamingCheckBox.isSelected
     }
 
     private fun createPasswordFieldWithToggle(passwordField: JPasswordField): JPanel {
@@ -184,6 +192,9 @@ class AICodeReviewSettingsComponent {
         settings.ANTHROPIC_VERSION = anthropicVersionField.text
         settings.PROMPT = promptField.text
         settings.PREFERRED_LANGUAGE = preferredLanguageComboBox.selectedItem as String
+        settings.USE_STREAMING = useStreamingCheckBox.isSelected
+        settings.STREAMING_CHUNK_SIZE = streamingChunkSizeField.text.toIntOrNull() ?: 8192
+
 
         // 서비스 제공자별 RESPONSE_PATH 설정 적용
         when (settings.SERVICE_PROVIDER) {
@@ -208,6 +219,9 @@ class AICodeReviewSettingsComponent {
         anthropicVersionField.text = settings.ANTHROPIC_VERSION
         promptField.text = settings.PROMPT
         preferredLanguageComboBox.selectedItem = settings.PREFERRED_LANGUAGE
+        useStreamingCheckBox.isSelected = settings.USE_STREAMING
+        streamingChunkSizeField.text = settings.STREAMING_CHUNK_SIZE.toString()
+
         // 서비스 제공자별 RESPONSE_PATH 설정 복구
         when (settings.SERVICE_PROVIDER) {
             "ollama" -> responsePathField.text = settings.OLLAMA_RESPONSE_PATH
@@ -216,6 +230,8 @@ class AICodeReviewSettingsComponent {
             "groq" -> responsePathField.text = settings.GROQ_RESPONSE_PATH
             "openai" -> responsePathField.text = settings.OPENAI_RESPONSE_PATH
         }
+
+
         updateFieldVisibility()
     }
 
@@ -241,6 +257,8 @@ class AICodeReviewSettingsComponent {
                 anthropicVersionField.text != settings.ANTHROPIC_VERSION ||
                 promptField.text != settings.PROMPT ||
                 preferredLanguageComboBox.selectedItem != settings.PREFERRED_LANGUAGE ||
+                useStreamingCheckBox.isSelected != settings.USE_STREAMING ||
+                streamingChunkSizeField.text.toIntOrNull() != settings.STREAMING_CHUNK_SIZE ||
                 isResponsePathModified
     }
 

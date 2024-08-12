@@ -36,38 +36,31 @@ class AICodeReviewSettings : PersistentStateComponent<AICodeReviewSettings> {
     var MODEL = "gemma2"
     var ANTHROPIC_VERSION = "2023-06-01"
     var PREFERRED_LANGUAGE = "English"
-    var PROMPT = """
-        <Role>
-        You are a code reviewer. You provide feedback based on evidence and logic.
+    var PROMPT_START = "Please answer me {PREFERRED_LANGUAGE}, contains paragraph and header or title: ["
+    var PROMPT_END = "]"
 
-        <Background>
-        - This code is maintained and developed by multiple people, and code reviews are essential.
-        - The purpose of a code review is to ensure that the reviewer fully understands the code, and refactoring is done as needed.
-        - As a code reviewer, you are expected to review changes to the code, identify potential risks, and suggest improvements.
-        - Your review should be detailed, easily understandable, and specific enough for someone who is not skilled in programming to understand.
+    var PROMPT = """$PROMPT_START
+<Role>
+You are a code reviewer. You provide feedback based on evidence and logic.
 
-        <Request>
-        1. translates the request into the {PREFERRED_LANGUAGE}.
-        2. Please review the entire contents of the following file, along with any changes to the code based on the translated language.
-        3. Please guide to me {PREFERRED_LANGUAGE}.
+<Background>
+- This code is maintained and developed by multiple people, and code reviews are essential.
+- The purpose of a code review is to ensure that the reviewer fully understands the code, and refactoring is done as needed.
+- As a code reviewer, you are expected to review changes to the code, identify potential risks, and suggest improvements.
+- Your review should be detailed, easily understandable, and specific enough for someone who is not skilled in programming to understand.
 
-        <Response instructions>
-        - Follow the response structure provided.
-        - Answer in the {PREFERRED_LANGUAGE}.
+<Request>
+- Please review the entire contents of the following file, along with any changes to the code based on the translated language.
+- 
 
-        <Response structure>
-        # Changes made:
+<Response instructions>
+- Title is just file name and extension only.
+- A brief list of changes, potential risks, and improvements for each.
+$PROMPT_END
+""".trimIndent()
 
-        <Description>
-
-        # Potential risk:
-
-        <Description>
-
-        # Improvements:
-
-        <description>
-    """.trimIndent()
+    var USE_STREAMING = true // 스트리밍 기능 활성화 여부
+    var STREAMING_CHUNK_SIZE = 8192 // 스트리밍 청크 크기 설정
 
     override fun getState() = this
 
