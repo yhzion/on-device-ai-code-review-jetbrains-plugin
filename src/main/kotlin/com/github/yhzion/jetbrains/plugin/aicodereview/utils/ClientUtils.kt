@@ -40,6 +40,7 @@ object ClientUtils {
 
             val bufferedSource = response.body?.source() ?: throw Exception("Empty response")
             val buffer = Buffer()
+            progressCallback("\n")
             while (!bufferedSource.exhausted()) {
                 bufferedSource.read(buffer, settings.STREAMING_CHUNK_SIZE.toLong())
                 var chunk = buffer.readUtf8()

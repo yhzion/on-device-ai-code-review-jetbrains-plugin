@@ -1,4 +1,6 @@
 src/**/*.kt
+src/**/*.xml
+src/**/*.json
 src/**/*.json
 src/**/*.xml
 README.md

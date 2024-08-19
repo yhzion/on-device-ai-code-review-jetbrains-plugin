@@ -27,8 +27,6 @@ class AICodeReviewService(private val project: Project) {
 
             println("-- Changed files --")
             changedFiles.mapNotNull { file ->
-                // Print filename
-                println("Filename: ${file.name}")
                 val fullContent = file.contentsToByteArray().toString(Charsets.UTF_8)
                 val changedContent = getChangedContent(file)
                 if (changedContent.isNotEmpty()) {

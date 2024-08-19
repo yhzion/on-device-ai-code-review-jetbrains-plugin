@@ -5,8 +5,12 @@ import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewSettings
 import com.github.yhzion.jetbrains.plugin.aicodereview.services.AICodeReviewService
 import com.github.yhzion.jetbrains.plugin.aicodereview.settings.AICodeReviewSettingsConfigurable
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runReadAction
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.ToolWindow
+import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.testFramework.LightVirtualFile
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.data.MutableDataSet
@@ -14,10 +18,12 @@ import org.intellij.plugins.markdown.ui.preview.jcef.MarkdownJCEFHtmlPanel
 import kotlinx.coroutines.*
 import com.intellij.ui.JBColor
 import org.intellij.plugins.markdown.ui.preview.MarkdownHtmlPanel
+import org.intellij.plugins.markdown.ui.preview.html.MarkdownUtil
 import java.awt.*
 import javax.swing.*
 
 class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindow) {
+    private val logger = thisLogger()
     private val mainPanel: JPanel = JPanel(BorderLayout())
     private val markdownPanel: MarkdownHtmlPanel = MarkdownJCEFHtmlPanel(project, null)
     private val runReviewButton: JButton = JButton(AICodeReviewBundle.message("plugin.review.runReviewButton"))
@@ -136,12 +142,17 @@ class AICodeReviewToolWindow(private val project: Project, toolWindow: ToolWindo
         }
     }
 
-    public fun appendReviewResult(text: String) {
-        contentBuilder.append(text) // 새로운 청크를 기존 텍스트에 추가
-        val htmlContent = markdownToHtml(contentBuilder.toString()) // 전체를 다시 HTML로 변환
+    fun appendReviewResult(text: String) {
+        contentBuilder.append(text)
+        val file = LightVirtualFile("content.md", contentBuilder.toString())
 
-        ApplicationManager.getApplication().invokeLater {
-            markdownPanel.setHtml(htmlContent, 0) // UI에 적용
+        ApplicationManager.getApplication().executeOnPooledThread {
+            val html = runReadAction {
+                MarkdownUtil.generateMarkdownHtml(file, contentBuilder.toString(), project)
+            }
+            ApplicationManager.getApplication().invokeLater {
+                markdownPanel.setHtml(html, 0)
+            }
         }
     }
 

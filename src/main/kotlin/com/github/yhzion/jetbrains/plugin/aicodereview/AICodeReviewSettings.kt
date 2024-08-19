@@ -37,7 +37,6 @@ class AICodeReviewSettings : PersistentStateComponent<AICodeReviewSettings> {
     var ANTHROPIC_VERSION = "2023-06-01"
     var PREFERRED_LANGUAGE = "English"
 
-
     var PROMPT = """
 <Role>
 You are a code reviewer. You provide feedback based on evidence and logic.

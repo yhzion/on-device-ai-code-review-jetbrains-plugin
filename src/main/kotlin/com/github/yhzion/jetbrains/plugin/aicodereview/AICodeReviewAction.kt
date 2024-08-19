@@ -13,6 +13,7 @@ class AICodeReviewAction : AnAction() {
         val project = e.project ?: return
         val reviewService = AICodeReviewService(project)
 
+
         val toolWindow = ToolWindowManager.getInstance(project).getToolWindow(AICodeReviewBundle.message("plugin.review.run"))
 
         runBlocking {
