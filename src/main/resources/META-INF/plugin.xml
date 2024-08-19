@@ -97,10 +97,4 @@
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt R"/>
         </action>
     </actions>
-
-    <projectListeners>
-        <!-- 파일 변경 시 실행되는 리스너 등록 -->
-        <listener class="com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewFileListener"
-                  topic="com.intellij.openapi.vfs.VirtualFileListener"/>
-    </projectListeners>
 </idea-plugin>

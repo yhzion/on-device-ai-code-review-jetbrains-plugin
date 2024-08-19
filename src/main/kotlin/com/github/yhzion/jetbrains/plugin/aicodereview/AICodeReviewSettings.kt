@@ -64,10 +64,6 @@ You are a code reviewer. You provide feedback based on evidence and logic.
         XmlSerializerUtil.copyBean(state, this)
     }
 
-    fun notifySettingsChanged() {
-        ApplicationManager.getApplication().messageBus.syncPublisher(AICodeReviewSettingsConfigurable.SETTINGS_CHANGED_TOPIC).settingsChanged(this)
-    }
-
     companion object {
         val instance: AICodeReviewSettings
             get() = service()

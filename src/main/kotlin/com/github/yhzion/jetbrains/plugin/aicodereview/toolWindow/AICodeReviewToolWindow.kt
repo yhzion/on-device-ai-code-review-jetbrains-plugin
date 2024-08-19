@@ -3,7 +3,6 @@ package com.github.yhzion.jetbrains.plugin.aicodereview.toolWindow
 import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewBundle
 import com.github.yhzion.jetbrains.plugin.aicodereview.AICodeReviewSettings
 import com.github.yhzion.jetbrains.plugin.aicodereview.services.AICodeReviewService
-import com.github.yhzion.jetbrains.plugin.aicodereview.services.FileReviewResult
 import com.github.yhzion.jetbrains.plugin.aicodereview.settings.AICodeReviewSettingsConfigurable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project

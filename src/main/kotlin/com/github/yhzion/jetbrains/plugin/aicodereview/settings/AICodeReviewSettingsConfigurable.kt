@@ -25,8 +25,6 @@ class AICodeReviewSettingsConfigurable : Configurable {
     override fun apply() {
         val settings = AICodeReviewSettings.instance
         mySettingsComponent!!.apply(settings)
-
-        // 설정 변경 이벤트 발생
         ApplicationManager.getApplication().messageBus.syncPublisher(SETTINGS_CHANGED_TOPIC).settingsChanged(settings)
     }
 
