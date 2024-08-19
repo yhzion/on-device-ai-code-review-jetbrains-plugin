@@ -6,8 +6,10 @@ import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.util.ui.FormBuilder
+import java.awt.Color
 import javax.swing.*
 import java.awt.ComponentOrientation
+import java.awt.FlowLayout
 import java.awt.event.ItemEvent
 
 class AICodeReviewSettingsComponent {
@@ -48,6 +50,16 @@ class AICodeReviewSettingsComponent {
     private val languageNames = languages.map { it.name }
     private val preferredLanguageComboBox = ComboBox(languageNames.toTypedArray())
 
+    private val infoIconLabel = JLabel("ⓘ").apply {
+        toolTipText = AICodeReviewBundle.message("plugin.settings.preferredLanguageNoteLabel")
+        foreground = Color.GRAY // 원하는 색상으로 설정 가능
+    }
+
+    private val preferredLanguagePanel = JPanel(FlowLayout(FlowLayout.LEFT, 5, 0)).apply {
+        add(preferredLanguageComboBox)
+        add(infoIconLabel)
+    }
+
     init {
         serviceProviderComboBox.addItemListener { e ->
             if (e.stateChange == ItemEvent.SELECTED) {
@@ -69,7 +81,7 @@ class AICodeReviewSettingsComponent {
             .addLabeledComponent(anthropicVersionLabel, anthropicVersionField)
             .addLabeledComponent(
                 AICodeReviewBundle.message("plugin.settings.preferredLanguage"),
-                preferredLanguageComboBox
+                preferredLanguagePanel
             )
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.responsePath"), responsePathField)
             .addLabeledComponent(AICodeReviewBundle.message("plugin.settings.prompt"), promptScrollPane)

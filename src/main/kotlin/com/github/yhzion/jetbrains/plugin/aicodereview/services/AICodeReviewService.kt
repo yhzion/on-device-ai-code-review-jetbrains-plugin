@@ -2,6 +2,7 @@ package com.github.yhzion.jetbrains.plugin.aicodereview.services
 
 import com.github.yhzion.jetbrains.plugin.aicodereview.*
 import com.github.yhzion.jetbrains.plugin.aicodereview.utils.*
+import com.intellij.notification.*
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.*
 import com.intellij.openapi.vfs.VirtualFile
@@ -15,30 +16,41 @@ class AICodeReviewService(private val project: Project) {
 
     private val settings = AICodeReviewSettings.instance
 
-    suspend fun reviewChangedFiles(progressCallback: suspend (String) -> Unit): List<FileReviewResult> =
-        withContext(Dispatchers.IO) {
-            val changedFiles = getChangedFiles()
-            progressCallback("Found ${changedFiles.size} changed files\n")
-            changedFiles.forEach { file ->
-                progressCallback("- ${file.name}\n")
-            }
+    suspend fun reviewChangedFiles(progressCallback: suspend (String) -> Unit): List<FileReviewResult> = withContext(Dispatchers.IO) {
+        val changedFiles = getChangedFiles()
+        progressCallback("Found ${changedFiles.size} changed files\n")
+        changedFiles.forEach { file ->
+            progressCallback("- ${file.name}\n")
+        }
 
-            progressCallback("\n\n\n")
+        progressCallback("\n\n")
 
-            println("-- Changed files --")
-            changedFiles.mapNotNull { file ->
-                val fullContent = file.contentsToByteArray().toString(Charsets.UTF_8)
-                val changedContent = getChangedContent(file)
-                if (changedContent.isNotEmpty()) {
-                    val review =
-                        ClientUtils.requestReview(file.name, fullContent, changedContent, settings, progressCallback)
-                    FileReviewResult(file.name, "\n\n\n" + review)
-                } else {
-                    progressCallback("# No significant changes in ${file.name}\n")
-                    null
-                }
+        val reviewedFiles = changedFiles.mapNotNull { file ->
+            val fullContent = file.contentsToByteArray().toString(Charsets.UTF_8)
+            val changedContent = getChangedContent(file)
+            if (changedContent.isNotEmpty()) {
+                val filename = file.name
+                progressCallback("\n\n# $filename\n\n")
+                val review = ClientUtils.requestReview(file.name, fullContent, changedContent, settings, progressCallback)
+                FileReviewResult(file.name, "\n\n\n" + review)
+            } else {
+                progressCallback("# No significant changes in ${file.name}\n")
+                null
             }
         }
+
+        // Notification 추가
+        val reviewedCount = reviewedFiles.size
+        val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("AI Code Review Notifications")
+        val notification = notificationGroup.createNotification(
+            "AI code review completed",
+            "$reviewedCount files have been reviewed.",
+            NotificationType.INFORMATION
+        )
+        Notifications.Bus.notify(notification)
+
+        return@withContext reviewedFiles
+    }
 
     private fun getChangedFiles(): List<VirtualFile> {
         val changeListManager = ChangeListManager.getInstance(project)
