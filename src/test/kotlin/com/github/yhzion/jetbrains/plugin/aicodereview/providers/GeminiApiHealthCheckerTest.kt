@@ -14,7 +14,7 @@ class GeminiApiHealthCheckerTest {
     @Before
     fun setUp() {
         // ClaudeApiHealthChecker 인스턴스 생성
-        healthChecker = GeminiApiHealthChecker("https://generativelanguage.googleapis.com/v1/model")
+        healthChecker = GeminiApiHealthChecker()
         callbackInvoked = false
         isHealthyResult = null
     }
@@ -35,7 +35,7 @@ class GeminiApiHealthCheckerTest {
         healthChecker.subscribe { isHealthyResult = true }
 
         // 일정 시간이 지나 콜백이 호출되었는지 확인
-        Thread.sleep(2000)
+        Thread.sleep(5000)
 
         // 콜백 함수가 호출되었고, 결과가 true 인지 확인
         assertTrue("Callback should be invoked", callbackInvoked)

@@ -14,7 +14,7 @@ class OpenAIApiHealthCheckerTest {
     @Before
     fun setUp() {
         // OpenAIApiHealthChecker 의 인스턴스 생성
-        healthChecker = OpenAIApiHealthChecker("https://api.openai.com/v1/chat/completions")
+        healthChecker = OpenAIApiHealthChecker()
         callbackInvoked = false
         isHealthyResult = null
     }

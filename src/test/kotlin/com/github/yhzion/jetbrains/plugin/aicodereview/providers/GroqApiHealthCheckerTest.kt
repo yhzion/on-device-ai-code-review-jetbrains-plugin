@@ -14,7 +14,7 @@ class GroqApiHealthCheckerTest {
     @Before
     fun setUp() {
         // GroqApiHealthChecker 의 인스턴스 생성
-        healthChecker = GroqApiHealthChecker("https://api.groq.com/openai/v1/chat/completions")
+        healthChecker = GroqApiHealthChecker()
         callbackInvoked = false
         isHealthyResult = null
     }

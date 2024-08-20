@@ -14,7 +14,7 @@ class ClaudeApiHealthCheckerTest {
     @Before
     fun setUp() {
         // ClaudeApiHealthChecker 인스턴스 생성
-        healthChecker = ClaudeApiHealthChecker("https://api.anthropic.com/v1/messages")
+        healthChecker = ClaudeApiHealthChecker()
         callbackInvoked = false
         isHealthyResult = null
     }

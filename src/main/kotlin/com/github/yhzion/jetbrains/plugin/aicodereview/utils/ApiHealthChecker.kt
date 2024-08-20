@@ -5,9 +5,11 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 abstract class ApiHealthChecker(
-    private val url: String,
-    private val interval: Int = 30
+    private val interval: Int = 30,
+    private val customUrl: String? = null // 기본 URL 을 서브 클래스에서 설정할 수 있도록 함
 ) {
+    open val url: String = customUrl ?: getDefaultUrl()
+
     private val callbacks: MutableList<(Boolean) -> Unit> = mutableListOf()
     private var isRunning: Boolean = false
 
@@ -16,6 +18,8 @@ abstract class ApiHealthChecker(
     }
 
     protected abstract fun isHealthy(response: Response): Boolean
+
+    protected abstract fun getDefaultUrl(): String
 
     private suspend fun checkApiHealth() {
         try {
@@ -27,7 +31,7 @@ abstract class ApiHealthChecker(
         }
     }
 
-    private final suspend fun sendRequest(url: String): Response {
+    private suspend fun sendRequest(url: String): Response {
         val urlObj = URL(url)
         val connection = withContext(Dispatchers.IO) {
             urlObj.openConnection()
