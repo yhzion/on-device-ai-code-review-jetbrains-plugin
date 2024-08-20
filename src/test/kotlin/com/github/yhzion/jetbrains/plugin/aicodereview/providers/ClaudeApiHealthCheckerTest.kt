@@ -4,18 +4,17 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mockito
 
-class OllamaApiHealthCheckerTest {
+class ClaudeApiHealthCheckerTest {
 
-    private lateinit var healthChecker: OllamaApiHealthChecker
+    private lateinit var healthChecker: ClaudeApiHealthChecker
     private var callbackInvoked = false
     private var isHealthyResult: Boolean? = null
 
     @Before
     fun setUp() {
-        // OllamaApiHealthChecker 의 인스턴스 생성
-        healthChecker = OllamaApiHealthChecker("http://localhost:11434")
+        // ClaudeApiHealthChecker 인스턴스 생성
+        healthChecker = ClaudeApiHealthChecker("https://api.anthropic.com/v1/messages")
         callbackInvoked = false
         isHealthyResult = null
     }
@@ -31,15 +30,14 @@ class OllamaApiHealthCheckerTest {
         // 콜백 함수를 통해 결과를 받기 위해 subscribe 호출
         healthChecker.subscribe(callback)
 
-        // 내부적으로 상태를 변경하는 메서드를 호출했다고 가정 (실제로는 private 메서드 호출 불가)
-        // 따라서 이 부분에서는 내부 로직이 정상적으로 동작했다고 가정하여 콜백을 수동으로 호출
-        // 예를 들어 내부적으로 응답이 200 OK를 받아 헬스 체크가 성공했다고 가정
+        // 내부적으로 상태를 변경하는 메서드를 호출했다고 가정
+        // 예를 들어 내부적으로 응답이 405 Method Not Allowed를 받아 헬스 체크가 성공했다고 가정
         healthChecker.subscribe { isHealthyResult = true }
 
         // 일정 시간이 지나 콜백이 호출되었는지 확인
         Thread.sleep(1000)
 
-        // 콜백 함수가 호출되었고, 결과가 true인지 확인
+        // 콜백 함수가 호출되었고, 결과가 true 인지 확인
         assertTrue("Callback should be invoked", callbackInvoked)
         assertTrue("Health check should be healthy", isHealthyResult == true)
     }

@@ -27,7 +27,7 @@ abstract class ApiHealthChecker(
         }
     }
 
-    private suspend fun sendRequest(url: String): Response {
+    private final suspend fun sendRequest(url: String): Response {
         val urlObj = URL(url)
         val connection = withContext(Dispatchers.IO) {
             urlObj.openConnection()
