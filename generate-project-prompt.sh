@@ -2,7 +2,7 @@
 
 # 트리 구조를 출력하는 함수
 function print_tree() {
-    tree "$1" -I 'bin|build|gradle' --prune -f
+    /usr/local/bin/tree "$1" -I 'bin|build|gradle' --prune -f
 }
 
 # 파일 내용을 출력하는 함수
