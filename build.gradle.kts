@@ -40,7 +40,7 @@ repositories {
 dependencies {
     testImplementation(libs.junit)
     testImplementation("org.mockito:mockito-core:5.2.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 
     // IntelliJ Platform Gradle Plugin Dependencies Extension
     intellijPlatform {
